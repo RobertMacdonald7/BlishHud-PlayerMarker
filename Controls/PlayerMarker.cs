@@ -62,38 +62,42 @@ namespace Tortle.PlayerMarker.Control
 
         public void Render(GraphicsDevice graphicsDevice, IWorld world, ICamera camera)
         {
-            if (this.Visible && _geometryBuffer != null)
-            {
-                float x = GameService.Gw2Mumble.PlayerCharacter.Position.X;
-                float y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
-                float z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
+	        if (!this.Visible || _geometryBuffer == null) return;
 
-                float facing = (float)(Math.Atan2(GameService.Gw2Mumble.PlayerCamera.Forward.Y, GameService.Gw2Mumble.PlayerCamera.Forward.X));
-                float facing2 = (float)(Math.Tan(GameService.Gw2Mumble.PlayerCamera.Forward.Z));
-                Matrix worldMatrix = Matrix.CreateTranslation(x, y, z);
+	        var x = GameService.Gw2Mumble.PlayerCharacter.Position.X;
+	        var y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
+	        var z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
 
-                var rotationMatrixX = Matrix.CreateRotationX((float)(facing2 - 2 * Math.PI / 4));
-                var rotationMatrixZ = Matrix.CreateRotationZ((float)(facing - 2 * Math.PI / 4));
+	        // The camera 'pan' angle
+	        var panAngleRad = (float)(Math.Atan2(GameService.Gw2Mumble.PlayerCamera.Forward.Y, GameService.Gw2Mumble.PlayerCamera.Forward.X));
 
-                var rotationMatrix = Matrix.Multiply(rotationMatrixX, rotationMatrixZ);
-                worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
+	        // The camera 'pitch' angle
+	        var pitchAngleRad = (float)(Math.Asin(GameService.Gw2Mumble.PlayerCamera.Forward.Z));
 
-                _renderEffect.View = GameService.Gw2Mumble.PlayerCamera.View;
-                _renderEffect.Projection = GameService.Gw2Mumble.PlayerCamera.Projection;
-                _renderEffect.World = worldMatrix;
-                _renderEffect.Texture = MarkerTexture;
-                _renderEffect.Alpha = MarkerOpacity;
+            // TODO - Add option to remove 'facing2' from the x rotation so that the marker doesn't 'face' the tilt of the camera.
+	        var rotationMatrixX = Matrix.CreateRotationX((float)(pitchAngleRad + 2 * Math.PI / 4));
+	        var rotationMatrixZ = Matrix.CreateRotationZ((float)(panAngleRad - 2 * Math.PI / 4));
+	        var translationMatrix = Matrix.CreateTranslation(x, y, z);
 
-                graphicsDevice.SetVertexBuffer(_geometryBuffer, 0);
+	        // Rotate the marker to always face the camera, then translate it onto the character's position
+	        var rotationMatrix = Matrix.Multiply(rotationMatrixX, rotationMatrixZ);
+	        var worldMatrix = Matrix.Multiply(rotationMatrix, translationMatrix);
 
-                foreach (var pass in _renderEffect.CurrentTechnique.Passes)
-                    pass.Apply();
+	        _renderEffect.View = GameService.Gw2Mumble.PlayerCamera.View;
+	        _renderEffect.Projection = GameService.Gw2Mumble.PlayerCamera.Projection;
+	        _renderEffect.World = worldMatrix;
+	        _renderEffect.Texture = MarkerTexture;
+	        _renderEffect.Alpha = MarkerOpacity;
 
-                graphicsDevice.DrawPrimitives(
-                    PrimitiveType.TriangleStrip,
-                    0,
-                    2);
-            }
+	        graphicsDevice.SetVertexBuffer(_geometryBuffer, 0);
+
+	        foreach (var pass in _renderEffect.CurrentTechnique.Passes)
+		        pass.Apply();
+
+	        graphicsDevice.DrawPrimitives(
+		        PrimitiveType.TriangleStrip,
+		        0,
+		        2);
         }
 
         public void Update(GameTime gameTime) { /* NOOP */ }
