@@ -1,4 +1,5 @@
 ﻿using Blish_HUD;
+using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
@@ -31,10 +32,16 @@ namespace Tortle.PlayerMarker
 		public SettingEntry<float> SettingPlayerMarkerOpacity { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerRadius { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerVerticalOffset { get; private set; }
+		public SettingEntry<string> SettingPlayerMarkerTexture { get; private set; }
 
 		private Tortle.PlayerMarker.Controls.PlayerMarker _playerMarker;
 
-		private Texture2D _textureCircleFill;
+		public static string[] _textureDisplay = new string[] { "GW2 Target", "Solid", "Thin Ring", "Thick Ring" };
+
+		private Texture2D _texturethin;
+		private Texture2D _texturethick;
+		private Texture2D _texturefill;
+		private Texture2D _texturetarget;
 
 		[ImportingConstructor]
 		public PlayerMarkerModule([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(
@@ -54,11 +61,14 @@ namespace Tortle.PlayerMarker
 
 			SettingPlayerMarkerVerticalOffset = settings.DefineSetting("PlayerMarkerVerticalOffset", 2.5f, () => "Vertical Offset", () => "How high to offset the marker off the ground.");
 
+			SettingPlayerMarkerTexture = settings.DefineSetting("PlayerMarkerSelection", "GW2target", () => "Marker", () => "Displayed marker.");
+
 			SettingPlayerMarkerEnable.SettingChanged += UpdateSettings_Enabled;
 			SettingPlayerMarkerColor.SettingChanged += UpdateSettings_Color;
 			SettingPlayerMarkerRadius.SettingChanged += UpdateSettings_Radius;
 			SettingPlayerMarkerOpacity.SettingChanged += UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged += UpdateSettings_VerticalOffset;
+			SettingPlayerMarkerTexture.SettingChanged += UpdateSettings_Texture;
 		}
 
 		public override IView GetSettingsView()
@@ -68,7 +78,11 @@ namespace Tortle.PlayerMarker
 
 		protected override void Initialize()
 		{
-			_textureCircleFill = ContentsManager.GetTexture("circlefill.png");
+			_texturethin = ContentsManager.GetTexture("circlethin.png");
+			_texturethick = ContentsManager.GetTexture("circlethick.png");
+			_texturefill = ContentsManager.GetTexture("circlefill.png");
+			_texturetarget = ContentsManager.GetTexture("gw2target.png");
+
 			var diameterPx = DistToPx(SettingPlayerMarkerRadius.Value);
 
 			_playerMarker = new Controls.PlayerMarker
@@ -76,7 +90,7 @@ namespace Tortle.PlayerMarker
 				Visible = SettingPlayerMarkerEnable.Value,
 				MarkerColor = ToRgb(SettingPlayerMarkerColor.Value),
 				MarkerOpacity = SettingPlayerMarkerOpacity.Value,
-				MarkerTexture = _textureCircleFill,
+				MarkerTexture = _texturetarget,
 				Size = new Vector3(diameterPx, diameterPx, 0),
 				VerticalOffset = SettingPlayerMarkerVerticalOffset.Value,
 			};
@@ -93,6 +107,7 @@ namespace Tortle.PlayerMarker
 			SettingPlayerMarkerColor.SettingChanged -= UpdateSettings_Color;
 			SettingPlayerMarkerOpacity.SettingChanged -= UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged -= UpdateSettings_VerticalOffset;
+			SettingPlayerMarkerTexture.SettingChanged -= UpdateSettings_Texture;
 
 			GameService.Graphics.World.RemoveEntity(_playerMarker);
 
@@ -115,7 +130,7 @@ namespace Tortle.PlayerMarker
 		{
 			var diameterPx = DistToPx(e.NewValue);
 			_playerMarker.Size = new Vector3(diameterPx, diameterPx, 0);
-			_playerMarker.MarkerTexture = _textureCircleFill;
+			//_playerMarker.MarkerTexture = _texturetarget;
 
 			_playerMarker.UpdateMarker();
 		}
@@ -130,6 +145,30 @@ namespace Tortle.PlayerMarker
 		{
 			_playerMarker.MarkerOpacity = e.NewValue;
 		}
+
+		private void UpdateSettings_Texture(object sender, ValueChangedEventArgs<string> e)
+		{
+			switch (SettingPlayerMarkerTexture.Value)
+			{
+				case "GW2 Target":
+					_playerMarker.MarkerTexture = _texturetarget;
+					break;
+				case "Solid":
+					_playerMarker.MarkerTexture = _texturefill;
+					break;
+				case "Thin Ring":
+					_playerMarker.MarkerTexture = _texturethin;
+					break;
+				case "Thick Ring":
+					_playerMarker.MarkerTexture = _texturethick;
+					break;
+				default:
+					_playerMarker.MarkerTexture = _texturetarget;
+					break;
+			}
+			_playerMarker.UpdateMarker();
+		}
+
 
 		#endregion
 

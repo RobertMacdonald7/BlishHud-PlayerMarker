@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
@@ -29,7 +29,7 @@ namespace Tortle.PlayerMarker.Views
 			parentPanel.LeftMouseButtonPressed += delegate
 			{
 				if (_colorPickerPanel.Visible && !_colorPickerPanel.MouseOver &&
-				    !_settingPlayerMarkerColorBox.MouseOver)
+					!_settingPlayerMarkerColorBox.MouseOver)
 				{
 					_colorPickerPanel.Visible = false;
 				}
@@ -94,12 +94,11 @@ namespace Tortle.PlayerMarker.Views
 			};
 			var settingPlayerMarkerEnable_Checkbox = new Checkbox()
 			{
-				Location =
-					new Point(settingPlayerMarkerEnable_Label.Right + 5, settingPlayerMarkerEnable_Label.Top + 2),
+				Location = new Point(settingPlayerMarkerEnable_Label.Right + 5, settingPlayerMarkerEnable_Label.Top + 2),
 				Parent = parentPanel,
 				Checked = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerEnable.Value
 			};
-			settingPlayerMarkerEnable_Checkbox.CheckedChanged += delegate(object sender, CheckChangedEvent e)
+			settingPlayerMarkerEnable_Checkbox.CheckedChanged += delegate (object sender, CheckChangedEvent e)
 			{
 				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerEnable.Value = e.Checked;
 			};
@@ -124,7 +123,7 @@ namespace Tortle.PlayerMarker.Views
 				Value = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerRadius.Value,
 				Parent = parentPanel,
 			};
-			settingsPlayerMarkerRadius_Slider.ValueChanged += delegate(object sender, ValueEventArgs<float> args)
+			settingsPlayerMarkerRadius_Slider.ValueChanged += delegate (object sender, ValueEventArgs<float> args)
 			{
 				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerRadius.Value = args.Value;
 			};
@@ -146,7 +145,7 @@ namespace Tortle.PlayerMarker.Views
 				Color = ConvertColor(PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value,
 					MyColors.Colors[PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value]),
 			};
-			_settingPlayerMarkerColorBox.Click += delegate(object sender, MouseEventArgs e)
+			_settingPlayerMarkerColorBox.Click += delegate (object sender, MouseEventArgs e)
 			{
 				_colorPicker.AssociatedColorBox = (ColorBox)sender;
 				_colorPickerPanel.Visible = !_colorPickerPanel.Visible;
@@ -191,8 +190,7 @@ namespace Tortle.PlayerMarker.Views
 			};
 			var settingPlayerMarkerVerticalOffset_Slider = new TrackBar()
 			{
-				Location = new Point(settingPlayerMarkerVerticalOffset_Label.Right + 5,
-					settingPlayerMarkerVerticalOffset_Label.Top + 2),
+				Location = new Point(settingPlayerMarkerVerticalOffset_Label.Right + 5, settingPlayerMarkerVerticalOffset_Label.Top + 2),
 				Width = 250,
 				MaxValue = 40,
 				MinValue = 0,
@@ -204,13 +202,38 @@ namespace Tortle.PlayerMarker.Views
 				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerVerticalOffset.Value =
 					(settingPlayerMarkerVerticalOffset_Slider.Value - 10) / 5;
 			};
+
+			var settingPlayerMarkerTextureLabel = new Label()
+			{
+				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerVerticalOffset_Label.Bottom + 5),
+				Width = 100,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = "Vertical Offset: ",
+				HorizontalAlignment = HorizontalAlignment.Right,
+			};
+			var settingPlayerMarkerTexture_Select = new Dropdown()
+			{
+				Location = new Point(settingPlayerMarkerTextureLabel.Right + 5, settingPlayerMarkerTextureLabel.Top + 2),
+				Width = 250,
+				Parent = parentPanel,
+			};
+			foreach (string s in PlayerMarkerModule._textureDisplay)
+			{
+				settingPlayerMarkerTexture_Select.Items.Add(s);
+			}
+			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerTexture.Value;
+			settingPlayerMarkerTexture_Select.ValueChanged += delegate {
+				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerTexture.Value = settingPlayerMarkerTexture_Select.SelectedItem;
+			};
 		}
 
 		private static Color ConvertColor(string name, Microsoft.Xna.Framework.Color color)
 		{
 			return new Color()
 			{
-				Name = name, Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } }
+				Name = name,
+				Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } }
 			};
 		}
 	}
