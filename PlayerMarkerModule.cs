@@ -1,4 +1,5 @@
-﻿using Blish_HUD;
+﻿using System.Collections.Generic;
+using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
@@ -9,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.ComponentModel.Composition;
 using Tortle.PlayerMarker.Models;
 using Tortle.PlayerMarker.Views;
+using TextureUtil = Tortle.PlayerMarker.Util.TextureUtil;
 
 namespace Tortle.PlayerMarker
 {
@@ -32,16 +34,12 @@ namespace Tortle.PlayerMarker
 		public SettingEntry<float> SettingPlayerMarkerOpacity { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerRadius { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerVerticalOffset { get; private set; }
-		public SettingEntry<string> SettingPlayerMarkerTexture { get; private set; }
+		public SettingEntry<ImagePreset> SettingPlayerMarkerImage { get; private set; }
+		public SettingEntry<string> SettingPlayerMarkerCustomImagePath { get; private set; }
 
-		private Tortle.PlayerMarker.Controls.PlayerMarker _playerMarker;
+		private Entity.PlayerMarker _playerMarker;
 
-		public static string[] _textureDisplay = new string[] { "GW2 Target", "Solid", "Thin Ring", "Thick Ring" };
-
-		private Texture2D _texturethin;
-		private Texture2D _texturethick;
-		private Texture2D _texturefill;
-		private Texture2D _texturetarget;
+		private readonly Dictionary<ImagePreset, Texture2D> _texturePresets = new Dictionary<ImagePreset, Texture2D>();
 
 		[ImportingConstructor]
 		public PlayerMarkerModule([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(
@@ -53,22 +51,30 @@ namespace Tortle.PlayerMarker
 		protected override void DefineSettings(SettingCollection settings)
 		{
 			SettingPlayerMarkerEnable = settings.DefineSetting("PlayerMarkerEnable", true, () => "Enabled", () => "");
-			SettingPlayerMarkerColor = settings.DefineSetting("PlayerMarkerColor", "White0", () => "Color", () => "Color of the marker.");
-			SettingPlayerMarkerRadius = settings.DefineSetting("PlayerMarkerRadius", 10f, () => "Radius", () => "Radius of the marker.");
+			SettingPlayerMarkerColor = settings.DefineSetting("PlayerMarkerColor", "White0", () => "Color",
+				() => "Color of the marker.");
+			SettingPlayerMarkerRadius = settings.DefineSetting("PlayerMarkerRadius", 10f, () => "Radius",
+				() => "Radius of the marker.");
 
-			SettingPlayerMarkerOpacity = settings.DefineSetting("PlayerMarkerOpacity", 1f, () => "Opacity", () => "Transparency of the marker.");
+			SettingPlayerMarkerOpacity = settings.DefineSetting("PlayerMarkerOpacity", 1f, () => "Opacity",
+				() => "Transparency of the marker.");
 			SettingPlayerMarkerOpacity.SetRange(0f, 1f);
 
-			SettingPlayerMarkerVerticalOffset = settings.DefineSetting("PlayerMarkerVerticalOffset", 2.5f, () => "Vertical Offset", () => "How high to offset the marker off the ground.");
+			SettingPlayerMarkerVerticalOffset = settings.DefineSetting("PlayerMarkerVerticalOffset", 2.5f,
+				() => "Vertical Offset", () => "How high to offset the marker off the ground.");
+			SettingPlayerMarkerCustomImagePath = settings.DefineSetting("PlayerMarkerCustomImagePath", "",
+				() => "Custom marker file path",
+				() => "The path to a custom image. Supported formats include: .bmp, .gif, .jpg, .png, .tif. and .dds");
 
-			SettingPlayerMarkerTexture = settings.DefineSetting("PlayerMarkerSelection", "GW2target", () => "Marker", () => "Displayed marker.");
+			SettingPlayerMarkerImage = settings.DefineSetting("PlayerMarkerImage", ImagePreset.Gw2Target, () => "Marker image", () => "Displayed marker image.");
 
 			SettingPlayerMarkerEnable.SettingChanged += UpdateSettings_Enabled;
 			SettingPlayerMarkerColor.SettingChanged += UpdateSettings_Color;
 			SettingPlayerMarkerRadius.SettingChanged += UpdateSettings_Radius;
 			SettingPlayerMarkerOpacity.SettingChanged += UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged += UpdateSettings_VerticalOffset;
-			SettingPlayerMarkerTexture.SettingChanged += UpdateSettings_Texture;
+			SettingPlayerMarkerImage.SettingChanged += UpdateSettings_Texture;
+			SettingPlayerMarkerCustomImagePath.SettingChanged += UpdateSettings_CustomImagePath;
 		}
 
 		public override IView GetSettingsView()
@@ -78,19 +84,20 @@ namespace Tortle.PlayerMarker
 
 		protected override void Initialize()
 		{
-			_texturethin = ContentsManager.GetTexture("circlethin.png");
-			_texturethick = ContentsManager.GetTexture("circlethick.png");
-			_texturefill = ContentsManager.GetTexture("circlefill.png");
-			_texturetarget = ContentsManager.GetTexture("gw2target.png");
+			_texturePresets.Add(ImagePreset.Gw2Target, ContentsManager.GetTexture("gw2target.png"));
+			_texturePresets.Add(ImagePreset.CircleThin, ContentsManager.GetTexture("circlethin.png"));
+			_texturePresets.Add(ImagePreset.CircleThick, ContentsManager.GetTexture("circlethick.png"));
+			_texturePresets.Add(ImagePreset.CircleFill, ContentsManager.GetTexture("circlefill.png"));
+			_texturePresets.Add(ImagePreset.Custom, TextureUtil.FromPathPremultiplied(SettingPlayerMarkerCustomImagePath.Value, _texturePresets[ImagePreset.Gw2Target]));
 
 			var diameterPx = DistToPx(SettingPlayerMarkerRadius.Value);
 
-			_playerMarker = new Controls.PlayerMarker
+			_playerMarker = new Entity.PlayerMarker
 			{
 				Visible = SettingPlayerMarkerEnable.Value,
 				MarkerColor = ToRgb(SettingPlayerMarkerColor.Value),
 				MarkerOpacity = SettingPlayerMarkerOpacity.Value,
-				MarkerTexture = _texturetarget,
+				MarkerTexture = _texturePresets[SettingPlayerMarkerImage.Value],
 				Size = new Vector3(diameterPx, diameterPx, 0),
 				VerticalOffset = SettingPlayerMarkerVerticalOffset.Value,
 			};
@@ -107,7 +114,7 @@ namespace Tortle.PlayerMarker
 			SettingPlayerMarkerColor.SettingChanged -= UpdateSettings_Color;
 			SettingPlayerMarkerOpacity.SettingChanged -= UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged -= UpdateSettings_VerticalOffset;
-			SettingPlayerMarkerTexture.SettingChanged -= UpdateSettings_Texture;
+			SettingPlayerMarkerImage.SettingChanged -= UpdateSettings_Texture;
 
 			GameService.Graphics.World.RemoveEntity(_playerMarker);
 
@@ -130,7 +137,6 @@ namespace Tortle.PlayerMarker
 		{
 			var diameterPx = DistToPx(e.NewValue);
 			_playerMarker.Size = new Vector3(diameterPx, diameterPx, 0);
-			//_playerMarker.MarkerTexture = _texturetarget;
 
 			_playerMarker.UpdateMarker();
 		}
@@ -146,29 +152,17 @@ namespace Tortle.PlayerMarker
 			_playerMarker.MarkerOpacity = e.NewValue;
 		}
 
-		private void UpdateSettings_Texture(object sender, ValueChangedEventArgs<string> e)
+		private void UpdateSettings_Texture(object sender, ValueChangedEventArgs<ImagePreset> e)
 		{
-			switch (SettingPlayerMarkerTexture.Value)
-			{
-				case "GW2 Target":
-					_playerMarker.MarkerTexture = _texturetarget;
-					break;
-				case "Solid":
-					_playerMarker.MarkerTexture = _texturefill;
-					break;
-				case "Thin Ring":
-					_playerMarker.MarkerTexture = _texturethin;
-					break;
-				case "Thick Ring":
-					_playerMarker.MarkerTexture = _texturethick;
-					break;
-				default:
-					_playerMarker.MarkerTexture = _texturetarget;
-					break;
-			}
+			_playerMarker.MarkerTexture = _texturePresets[e.NewValue];
 			_playerMarker.UpdateMarker();
 		}
 
+
+		private void UpdateSettings_CustomImagePath(object sender, ValueChangedEventArgs<string> e)
+		{
+			_playerMarker.MarkerTexture = TextureUtil.FromPathPremultiplied(e.NewValue, _texturePresets[ImagePreset.Gw2Target]);
+		}
 
 		#endregion
 
@@ -176,8 +170,8 @@ namespace Tortle.PlayerMarker
 
 		private static Color ToRgb(string colorName)
 		{
-			var success = MyColors.Colors.TryGetValue(colorName, out var color);
-			return success ? color : MyColors.Colors["White0"];
+			var success = ColorPresets.Colors.TryGetValue(colorName, out var color);
+			return success ? color : ColorPresets.Colors["White0"];
 		}
 
 		private static float DistToPx(float f)

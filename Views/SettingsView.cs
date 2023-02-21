@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
@@ -78,7 +78,7 @@ namespace Tortle.PlayerMarker.Views
 				_colorPickerPanel.Visible = false;
 			};
 			_colorPicker.LeftMouseButtonPressed += delegate { _colorPickerPanel.Visible = false; };
-			foreach (var color in MyColors.Colors)
+			foreach (var color in ColorPresets.Colors)
 			{
 				_colorPicker.Colors.Add(ConvertColor(color.Key, color.Value));
 			}
@@ -105,9 +105,8 @@ namespace Tortle.PlayerMarker.Views
 
 			var settingPlayerMarkerRadius_Label = new Label()
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerEnable_Label.Bottom + 5),
+				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerEnable_Label.Bottom + 8),
 				Width = 100,
-				AutoSizeHeight = false,
 				WrapText = false,
 				Parent = parentPanel,
 				Text = "Radius: ",
@@ -130,9 +129,8 @@ namespace Tortle.PlayerMarker.Views
 
 			var settingPlayerMarkerColor_Label = new Label()
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerRadius_Label.Bottom + 5),
+				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerRadius_Label.Bottom + 8),
 				Width = 100,
-				AutoSizeHeight = false,
 				WrapText = false,
 				Parent = parentPanel,
 				Text = "Color: ",
@@ -143,7 +141,7 @@ namespace Tortle.PlayerMarker.Views
 				Location = new Point(settingPlayerMarkerColor_Label.Right + 5, settingPlayerMarkerColor_Label.Top - 5),
 				Parent = parentPanel,
 				Color = ConvertColor(PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value,
-					MyColors.Colors[PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value]),
+					ColorPresets.Colors[PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value]),
 			};
 			_settingPlayerMarkerColorBox.Click += delegate (object sender, MouseEventArgs e)
 			{
@@ -154,9 +152,8 @@ namespace Tortle.PlayerMarker.Views
 			var settingPlayerMarkerOpacity_Label = new Label()
 			{
 				Location =
-					new Point(settingPlayerMarkerEnable_Label.Left, _settingPlayerMarkerColorBox.Bottom + 5),
+					new Point(settingPlayerMarkerEnable_Label.Left, _settingPlayerMarkerColorBox.Bottom + 8),
 				Width = 100,
-				AutoSizeHeight = false,
 				WrapText = false,
 				Parent = parentPanel,
 				Text = "Opacity: ",
@@ -180,9 +177,8 @@ namespace Tortle.PlayerMarker.Views
 
 			var settingPlayerMarkerVerticalOffset_Label = new Label()
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerOpacity_Label.Bottom + 5),
+				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerOpacity_Label.Bottom + 8),
 				Width = 100,
-				AutoSizeHeight = false,
 				WrapText = false,
 				Parent = parentPanel,
 				Text = "Vertical Offset: ",
@@ -205,26 +201,52 @@ namespace Tortle.PlayerMarker.Views
 
 			var settingPlayerMarkerTextureLabel = new Label()
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerVerticalOffset_Label.Bottom + 5),
+				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerVerticalOffset_Label.Bottom + 8),
 				Width = 100,
 				WrapText = false,
 				Parent = parentPanel,
-				Text = "Vertical Offset: ",
+				Text = "Marker Image: ",
 				HorizontalAlignment = HorizontalAlignment.Right,
 			};
 			var settingPlayerMarkerTexture_Select = new Dropdown()
 			{
-				Location = new Point(settingPlayerMarkerTextureLabel.Right + 5, settingPlayerMarkerTextureLabel.Top + 2),
+				Location = new Point(settingPlayerMarkerTextureLabel.Right + 5, settingPlayerMarkerTextureLabel.Top),
 				Width = 250,
 				Parent = parentPanel,
 			};
-			foreach (string s in PlayerMarkerModule._textureDisplay)
+			foreach (ImagePreset preset in Enum.GetValues(typeof(ImagePreset)))
 			{
-				settingPlayerMarkerTexture_Select.Items.Add(s);
+				settingPlayerMarkerTexture_Select.Items.Add(preset.ToDisplayString());
 			}
-			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerTexture.Value;
+			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value.ToDisplayString();
 			settingPlayerMarkerTexture_Select.ValueChanged += delegate {
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerTexture.Value = settingPlayerMarkerTexture_Select.SelectedItem;
+				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value = settingPlayerMarkerTexture_Select.SelectedItem.ToImagePreset();
+			};
+
+			var settingPlayerMarkerCustomImagePath_Label = new Label()
+			{
+				Location =
+					new Point(settingPlayerMarkerEnable_Label.Left,
+						settingPlayerMarkerTextureLabel.Bottom + 8),
+				Width = 100,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = "Custom image: ",
+				HorizontalAlignment = HorizontalAlignment.Right,
+			};
+			var settingPlayerMarkerCustomImagePath_TextBox = new TextBox()
+			{
+				Location = new Point(settingPlayerMarkerCustomImagePath_Label.Right + 5,
+					settingPlayerMarkerCustomImagePath_Label.Top),
+				Width = 250,
+				Text = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerCustomImagePath.Value,
+				Parent = parentPanel,
+			};
+
+			settingPlayerMarkerCustomImagePath_TextBox.EnterPressed += delegate
+			{
+				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerCustomImagePath.Value =
+					settingPlayerMarkerCustomImagePath_TextBox.Text;
 			};
 		}
 
