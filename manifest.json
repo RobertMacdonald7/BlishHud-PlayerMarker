@@ -1,19 +1,19 @@
 {
-    "name": "Player Marker",
-    "version": "0.1.0",
-    "namespace": "Tortle.PlayerMarker",
-    "package": "PlayerMarker.dll",
-    "manifest_version": 1,
+	"name": "Player Marker",
+	"version": "0.1.0",
+	"namespace": "Tortle.PlayerMarker",
+	"package": "PlayerMarker.dll",
+	"manifest_version": 1,
 
-    "description": "Displays a marker above the player's location",
-    "dependencies": {
-        "bh.blishhud": ">=0.11.2"
-    },
-    "url": "",
-    "contributors": [
-        {
-            "name": "Tortle",
-            "username": "LuckyTorlte.1529"
-        }
-    ]
+	"description": "Displays a marker above the player's location",
+	"dependencies": {
+		"bh.blishhud": ">=1.0.0"
+	},
+	"url": "https://github.com/RobertMacdonald7/BlishHud-PlayerMarker",
+	"contributors": [
+		{
+			"name": "Tortle",
+			"username": "LuckyTorlte.1529"
+		}
+	]
 }

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Debug Module": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Games\\Guild Wars 2\\BlishHud\\Blish HUD.exe",
+      "commandLineArgs": "--debug --module \"\"E:\\REPOS\\BlishHud-PlayerMarker\\bin\\Debug\\net48\\PlayerMarker.bhm\"\""
+    }
+  }
+}
