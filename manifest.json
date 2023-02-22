@@ -1,10 +1,9 @@
 {
+	"manifest_version": 1,
 	"name": "Player Marker",
 	"version": "0.1.2",
 	"namespace": "Tortle.PlayerMarker",
 	"package": "PlayerMarker.dll",
-	"manifest_version": 1,
-
 	"description": "Displays a marker above the player's location",
 	"dependencies": {
 		"bh.blishhud": ">=1.0.0"
@@ -14,6 +13,10 @@
 		{
 			"name": "Tortle",
 			"username": "LuckyTortle.1529"
+		},
+		{
+			"name": "Liquid",
+			"username": "LiquidNight.1560"
 		}
 	],
 	"directories": ["tortle/playermarkers"]
