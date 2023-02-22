@@ -3,11 +3,11 @@ using Microsoft.Xna.Framework;
 
 namespace Tortle.PlayerMarker.Models
 {
-	static class MyColors
+	internal static class ColorPresets
 	{
-		public static Dictionary<string, Color> Colors = new Dictionary<string, Color>();
+		public static Dictionary<string, Color> Colors { get; } = new Dictionary<string, Color>();
 
-		static MyColors()
+		static ColorPresets()
 		{
 			Colors.Add("White0", new Color(255, 255, 255));
 			Colors.Add("Red3", new Color(255, 191, 191));

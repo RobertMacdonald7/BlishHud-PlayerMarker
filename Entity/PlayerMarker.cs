@@ -4,7 +4,7 @@ using Blish_HUD.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Tortle.PlayerMarker.Controls
+namespace Tortle.PlayerMarker.Entity
 {
 	public class PlayerMarker : IEntity
 	{
