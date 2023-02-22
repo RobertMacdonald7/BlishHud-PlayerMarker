@@ -4,7 +4,7 @@
 	"version": "0.1.2",
 	"namespace": "Tortle.PlayerMarker",
 	"package": "PlayerMarker.dll",
-	"description": "Displays a marker above the player's location",
+	"description": "Displays a marker at the player's location.",
 	"dependencies": {
 		"bh.blishhud": ">=1.0.0"
 	},
