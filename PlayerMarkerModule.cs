@@ -169,7 +169,6 @@ namespace Tortle.PlayerMarker
 		private void UpdateSettings_Image(object sender, ValueChangedEventArgs<string> e)
 		{
 			_playerMarker.MarkerTexture = MarkerTextures[e.NewValue];
-			_playerMarker.UpdateMarker();
 		}
 
 		#endregion
