@@ -231,7 +231,7 @@ namespace Tortle.PlayerMarker.Views
 				Width = 100,
 				WrapText = false,
 				Parent = parentPanel,
-				Text = "Custom image: ",
+				Text = "Custom Image: ",
 				HorizontalAlignment = HorizontalAlignment.Right,
 			};
 			var settingPlayerMarkerCustomImagePath_TextBox = new TextBox()

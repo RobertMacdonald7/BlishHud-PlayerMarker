@@ -2,7 +2,6 @@
 using System.Linq;
 using Blish_HUD;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
 
 namespace Tortle.PlayerMarker.Util
 {

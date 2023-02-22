@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using Blish_HUD;
-using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.ComponentModel.Composition;
 using Tortle.PlayerMarker.Models;
 using Tortle.PlayerMarker.Views;
 using TextureUtil = Tortle.PlayerMarker.Util.TextureUtil;
@@ -161,7 +160,12 @@ namespace Tortle.PlayerMarker
 
 		private void UpdateSettings_CustomImagePath(object sender, ValueChangedEventArgs<string> e)
 		{
-			_playerMarker.MarkerTexture = TextureUtil.FromPathPremultiplied(e.NewValue, _texturePresets[ImagePreset.Gw2Target]);
+			_texturePresets[ImagePreset.Custom] = TextureUtil.FromPathPremultiplied(e.NewValue, _texturePresets[ImagePreset.Gw2Target]);
+
+			if (SettingPlayerMarkerImage.Value == ImagePreset.Custom)
+			{
+				_playerMarker.MarkerTexture = _texturePresets[ImagePreset.Custom];
+			}
 		}
 
 		#endregion
