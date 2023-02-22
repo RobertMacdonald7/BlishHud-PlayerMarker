@@ -9,16 +9,10 @@ namespace Tortle.PlayerMarker.Util
 	{
 		/// <summary>
 		/// Creates a Texture2D from a file path.
-		/// If the path is not valid, or the image failed to be loaded, <paramref name="fallbackTexture"/> is returned
 		/// </summary>
-		public static Texture2D FromPathPremultiplied(string filePath, Texture2D fallbackTexture)
+		public static Texture2D FromPathPremultiplied(string filePath)
 		{
-			if (!IsValidTextureFile(filePath))
-			{
-				return fallbackTexture;
-			}
-
-			Texture2D texture = null;
+			Texture2D texture;
 			try
 			{
 				using var fs = File.OpenRead(filePath);
@@ -27,42 +21,10 @@ namespace Tortle.PlayerMarker.Util
 			}
 			catch
 			{
-				// ignored
+				texture = ContentService.Textures.Error;
 			}
 
-			return texture == ContentService.Textures.Error ? fallbackTexture : texture;
-		}
-
-		private static bool IsValidTextureFile(string filePath)
-		{
-			if (string.IsNullOrWhiteSpace(filePath))
-			{
-				return false;
-			}
-
-			if (!File.Exists(filePath))
-			{
-				return false;
-			}
-
-			var invalidChars = Path.GetInvalidPathChars();
-			var containsInvalidChars = filePath.IndexOfAny(invalidChars) >= 0;
-
-			if (containsInvalidChars)
-			{
-				return false;
-			}
-
-			var extension = Path.GetExtension(filePath);
-			if (string.IsNullOrEmpty(extension))
-			{
-				return false;
-			}
-
-			var supportedExtensions = new[] {".bmp", ".gif", ".jpg", ".png", ".tif", ".dds"};
-			var extensionSupported = supportedExtensions.Contains(extension);
-
-			return extensionSupported;
+			return texture;
 		}
 	}
 }

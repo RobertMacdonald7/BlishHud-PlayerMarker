@@ -214,39 +214,13 @@ namespace Tortle.PlayerMarker.Views
 				Width = 250,
 				Parent = parentPanel,
 			};
-			foreach (ImagePreset preset in Enum.GetValues(typeof(ImagePreset)))
+			foreach (var markerTexture in PlayerMarkerModule.ModuleInstance.MarkerTextures)
 			{
-				settingPlayerMarkerTexture_Select.Items.Add(preset.ToDisplayString());
+				settingPlayerMarkerTexture_Select.Items.Add(markerTexture.Key);
 			}
-			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value.ToDisplayString();
+			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value;
 			settingPlayerMarkerTexture_Select.ValueChanged += delegate {
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value = settingPlayerMarkerTexture_Select.SelectedItem.ToImagePreset();
-			};
-
-			var settingPlayerMarkerCustomImagePath_Label = new Label()
-			{
-				Location =
-					new Point(settingPlayerMarkerEnable_Label.Left,
-						settingPlayerMarkerTextureLabel.Bottom + 8),
-				Width = 100,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = "Custom Image: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
-			};
-			var settingPlayerMarkerCustomImagePath_TextBox = new TextBox()
-			{
-				Location = new Point(settingPlayerMarkerCustomImagePath_Label.Right + 5,
-					settingPlayerMarkerCustomImagePath_Label.Top),
-				Width = 250,
-				Text = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerCustomImagePath.Value,
-				Parent = parentPanel,
-			};
-
-			settingPlayerMarkerCustomImagePath_TextBox.EnterPressed += delegate
-			{
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerCustomImagePath.Value =
-					settingPlayerMarkerCustomImagePath_TextBox.Text;
+				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value = settingPlayerMarkerTexture_Select.SelectedItem;
 			};
 		}
 

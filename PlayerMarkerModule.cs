@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Blish_HUD;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
@@ -33,12 +37,16 @@ namespace Tortle.PlayerMarker
 		public SettingEntry<float> SettingPlayerMarkerOpacity { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerRadius { get; private set; }
 		public SettingEntry<float> SettingPlayerMarkerVerticalOffset { get; private set; }
-		public SettingEntry<ImagePreset> SettingPlayerMarkerImage { get; private set; }
-		public SettingEntry<string> SettingPlayerMarkerCustomImagePath { get; private set; }
+		public SettingEntry<string> SettingPlayerMarkerImage { get; private set; }
 
 		private Entity.PlayerMarker _playerMarker;
 
-		private readonly Dictionary<ImagePreset, Texture2D> _texturePresets = new Dictionary<ImagePreset, Texture2D>();
+		public IReadOnlyDictionary<string, Texture2D> MarkerTextures => _markerTextures;
+
+		private Dictionary<string, Texture2D> _markerTextures;
+
+		private readonly string[] _defaultMarkerFileNames = { "gw2target.png", "circlethin.png", "circlethick.png", "circlefill.png" };
+		private readonly string[] _supportedFileFormats = { ".bmp", ".gif", ".jpg", ".png", ".tif", ".dds" };
 
 		[ImportingConstructor]
 		public PlayerMarkerModule([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(
@@ -54,26 +62,19 @@ namespace Tortle.PlayerMarker
 				() => "Color of the marker.");
 			SettingPlayerMarkerRadius = settings.DefineSetting("PlayerMarkerRadius", 10f, () => "Radius",
 				() => "Radius of the marker.");
-
 			SettingPlayerMarkerOpacity = settings.DefineSetting("PlayerMarkerOpacity", 1f, () => "Opacity",
 				() => "Transparency of the marker.");
 			SettingPlayerMarkerOpacity.SetRange(0f, 1f);
-
 			SettingPlayerMarkerVerticalOffset = settings.DefineSetting("PlayerMarkerVerticalOffset", 2.5f,
 				() => "Vertical Offset", () => "How high to offset the marker off the ground.");
-			SettingPlayerMarkerCustomImagePath = settings.DefineSetting("PlayerMarkerCustomImagePath", "",
-				() => "Custom marker file path",
-				() => "The path to a custom image. Supported formats include: .bmp, .gif, .jpg, .png, .tif. and .dds");
-
-			SettingPlayerMarkerImage = settings.DefineSetting("PlayerMarkerImage", ImagePreset.Gw2Target, () => "Marker image", () => "Displayed marker image.");
+			SettingPlayerMarkerImage = settings.DefineSetting("PlayerMarkerImage", _defaultMarkerFileNames[0], () => "Marker image", () => "Displayed marker image.");
 
 			SettingPlayerMarkerEnable.SettingChanged += UpdateSettings_Enabled;
 			SettingPlayerMarkerColor.SettingChanged += UpdateSettings_Color;
 			SettingPlayerMarkerRadius.SettingChanged += UpdateSettings_Radius;
 			SettingPlayerMarkerOpacity.SettingChanged += UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged += UpdateSettings_VerticalOffset;
-			SettingPlayerMarkerImage.SettingChanged += UpdateSettings_Texture;
-			SettingPlayerMarkerCustomImagePath.SettingChanged += UpdateSettings_CustomImagePath;
+			SettingPlayerMarkerImage.SettingChanged += UpdateSettings_Image;
 		}
 
 		public override IView GetSettingsView()
@@ -83,27 +84,36 @@ namespace Tortle.PlayerMarker
 
 		protected override void Initialize()
 		{
-			_texturePresets.Add(ImagePreset.Gw2Target, ContentsManager.GetTexture("gw2target.png"));
-			_texturePresets.Add(ImagePreset.CircleThin, ContentsManager.GetTexture("circlethin.png"));
-			_texturePresets.Add(ImagePreset.CircleThick, ContentsManager.GetTexture("circlethick.png"));
-			_texturePresets.Add(ImagePreset.CircleFill, ContentsManager.GetTexture("circlefill.png"));
-			_texturePresets.Add(ImagePreset.Custom, TextureUtil.FromPathPremultiplied(SettingPlayerMarkerCustomImagePath.Value, _texturePresets[ImagePreset.Gw2Target]));
+			_playerMarker = new Entity.PlayerMarker();
+			_markerTextures = new Dictionary<string, Texture2D>();
+		}
 
+		protected override async Task LoadAsync()
+		{
+			await LoadPresets();
+
+			GameService.Graphics.World.AddEntity(_playerMarker);
+		}
+
+		protected override void OnModuleLoaded(EventArgs e)
+		{
 			var diameterPx = DistToPx(SettingPlayerMarkerRadius.Value);
 
-			_playerMarker = new Entity.PlayerMarker
-			{
-				Visible = SettingPlayerMarkerEnable.Value,
-				MarkerColor = ToRgb(SettingPlayerMarkerColor.Value),
-				MarkerOpacity = SettingPlayerMarkerOpacity.Value,
-				MarkerTexture = _texturePresets[SettingPlayerMarkerImage.Value],
-				Size = new Vector3(diameterPx, diameterPx, 0),
-				VerticalOffset = SettingPlayerMarkerVerticalOffset.Value,
-			};
+			// if the file got removed, reset the setting to default
+			SettingPlayerMarkerImage.Value = MarkerTextures.ContainsKey(SettingPlayerMarkerImage.Value)
+				? SettingPlayerMarkerImage.Value
+				: _defaultMarkerFileNames[0];
+
+			_playerMarker.Visible = SettingPlayerMarkerEnable.Value;
+			_playerMarker.MarkerColor = ToRgb(SettingPlayerMarkerColor.Value);
+			_playerMarker.MarkerOpacity = SettingPlayerMarkerOpacity.Value;
+			_playerMarker.MarkerTexture = MarkerTextures[SettingPlayerMarkerImage.Value];
+			_playerMarker.Size = new Vector3(diameterPx, diameterPx, 0);
+			_playerMarker.VerticalOffset = SettingPlayerMarkerVerticalOffset.Value;
 
 			_playerMarker.UpdateMarker();
 
-			GameService.Graphics.World.AddEntity(_playerMarker);
+			base.OnModuleLoaded(e);
 		}
 
 		protected override void Unload()
@@ -113,7 +123,12 @@ namespace Tortle.PlayerMarker
 			SettingPlayerMarkerColor.SettingChanged -= UpdateSettings_Color;
 			SettingPlayerMarkerOpacity.SettingChanged -= UpdateSettings_Opacity;
 			SettingPlayerMarkerVerticalOffset.SettingChanged -= UpdateSettings_VerticalOffset;
-			SettingPlayerMarkerImage.SettingChanged -= UpdateSettings_Texture;
+			SettingPlayerMarkerImage.SettingChanged -= UpdateSettings_Image;
+
+			foreach (var texturePreset in MarkerTextures)
+			{
+				texturePreset.Value.Dispose();
+			}
 
 			GameService.Graphics.World.RemoveEntity(_playerMarker);
 
@@ -151,26 +166,37 @@ namespace Tortle.PlayerMarker
 			_playerMarker.MarkerOpacity = e.NewValue;
 		}
 
-		private void UpdateSettings_Texture(object sender, ValueChangedEventArgs<ImagePreset> e)
+		private void UpdateSettings_Image(object sender, ValueChangedEventArgs<string> e)
 		{
-			_playerMarker.MarkerTexture = _texturePresets[e.NewValue];
+			_playerMarker.MarkerTexture = MarkerTextures[e.NewValue];
 			_playerMarker.UpdateMarker();
-		}
-
-
-		private void UpdateSettings_CustomImagePath(object sender, ValueChangedEventArgs<string> e)
-		{
-			_texturePresets[ImagePreset.Custom] = TextureUtil.FromPathPremultiplied(e.NewValue, _texturePresets[ImagePreset.Gw2Target]);
-
-			if (SettingPlayerMarkerImage.Value == ImagePreset.Custom)
-			{
-				_playerMarker.MarkerTexture = _texturePresets[ImagePreset.Custom];
-			}
 		}
 
 		#endregion
 
 		#region Helpers
+
+		private async Task LoadPresets()
+		{
+			var markersPath = DirectoriesManager.GetFullDirectoryPath("tortle/playermarkers");
+
+			foreach (var fileName in _defaultMarkerFileNames)
+			{
+				using var fs = ContentsManager.GetFileStream(fileName);
+				using var wfs = File.Create(Path.Combine(markersPath, fileName));
+				await fs.CopyToAsync(wfs);
+			}
+
+			foreach (var file in Directory.GetFiles(markersPath))
+			{
+				if (!_supportedFileFormats.Contains(Path.GetExtension(file)))
+				{
+					continue;
+				}
+
+				_markerTextures.Add(Path.GetFileName(file), TextureUtil.FromPathPremultiplied(file));
+			}
+		}
 
 		private static Color ToRgb(string colorName)
 		{
