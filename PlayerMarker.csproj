@@ -15,4 +15,19 @@
     <!--building the project fails otherwise, when BlishHud assets are excluded -->
     <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Localization\ModuleSettings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ModuleSettings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\ModuleSettings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ModuleSettings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

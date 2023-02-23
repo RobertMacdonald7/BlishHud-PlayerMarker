@@ -3,37 +3,124 @@ using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Input;
+using Blish_HUD.Modules.Managers;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Tortle.PlayerMarker.Models;
+using Tortle.PlayerMarker.Services;
 using Color = Gw2Sharp.WebApi.V2.Models.Color;
 
 namespace Tortle.PlayerMarker.Views
 {
-	public class SettingsView : View
+	/// <summary>
+	/// A custom view containing all configurable module settings.
+	/// </summary>
+	internal class SettingsView : View, IDisposable
 	{
+		private static readonly Logger Logger = Logger.GetLogger(typeof(SettingsView));
+
+		private readonly TextureCache _textureCache;
+		private readonly ModuleSettings _moduleSettings;
+		private readonly ContentsManager _contentsManager;
+
 		private Panel _colorPickerPanel;
 		private ColorPicker _colorPicker;
-		private ColorBox _settingPlayerMarkerColorBox;
+		private ColorBox _colorBox;
+		private Texture2D _panelBackgroundTexture;
+		private Texture2D _buttonDarkTexture;
+
+		public SettingsView(TextureCache textureCache, ModuleSettings moduleSettings,
+			ContentsManager contentsManager)
+		{
+			_textureCache = textureCache;
+			_moduleSettings = moduleSettings;
+			_contentsManager = contentsManager;
+		}
 
 		protected override void Build(Container buildPanel)
 		{
+			Logger.Info("Building settings view");
 			var parentPanel = new Panel()
 			{
 				CanScroll = false,
 				Parent = buildPanel,
 				Height = buildPanel.Height,
 				HeightSizingMode = SizingMode.AutoSize,
-				Width = 700, //bug? with buildPanel.Width changing to 40 after loading a different module settings and coming back.,
+				Width = buildPanel.Width,
 			};
 			parentPanel.LeftMouseButtonPressed += delegate
 			{
 				if (_colorPickerPanel.Visible && !_colorPickerPanel.MouseOver &&
-					!_settingPlayerMarkerColorBox.MouseOver)
+				    !_colorBox.MouseOver)
 				{
 					_colorPickerPanel.Visible = false;
 				}
 			};
+
+			Logger.Debug("Building 'Enabled' setting controls");
+			#region Enabled
+
+			var enableLabel = new Label()
+			{
+				Location = new Point(10, 18),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.Enabled.DisplayName,
+				BasicTooltipText = _moduleSettings.Enabled.Description,
+			};
+
+			var enableCheckbox = new Checkbox()
+			{
+				Location = new Point(enableLabel.Right + 5, enableLabel.Top + 2),
+				Parent = parentPanel,
+				Checked = _moduleSettings.Enabled.Value,
+			};
+
+			enableCheckbox.CheckedChanged += delegate(object sender, CheckChangedEvent e)
+			{
+				_moduleSettings.Enabled.Value = e.Checked;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Image' setting controls");
+			#region Image
+
+			var imageLabel = new Label()
+			{
+				Location = new Point(enableLabel.Left, enableLabel.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.ImageName.DisplayName,
+				BasicTooltipText = _moduleSettings.ImageName.Description,
+			};
+
+			var imageSelect = new Dropdown()
+			{
+				Location = new Point(imageLabel.Right + 5, imageLabel.Top),
+				Width = 250,
+				Parent = parentPanel,
+			};
+
+			foreach (var name in _textureCache.GetNames())
+			{
+				imageSelect.Items.Add(name);
+			}
+
+			imageSelect.SelectedItem = _moduleSettings.ImageName.Value;
+
+			imageSelect.ValueChanged += delegate
+			{
+				_moduleSettings.ImageName.Value = imageSelect.SelectedItem;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Color' setting controls");
+			#region Color
 
 			_colorPickerPanel = new Panel()
 			{
@@ -42,15 +129,16 @@ namespace Tortle.PlayerMarker.Views
 				Visible = false,
 				ZIndex = 10,
 				Parent = parentPanel,
-				BackgroundTexture = PlayerMarkerModule.ModuleInstance.ContentsManager.GetTexture("155976.png"),
+				BackgroundTexture = _panelBackgroundTexture,
 				ShowBorder = false,
 			};
+
 			var colorPickerBg = new Panel()
 			{
 				Location = new Point(15, 15),
 				Size = new Point(_colorPickerPanel.Size.X - 35, _colorPickerPanel.Size.Y - 30),
 				Parent = _colorPickerPanel,
-				BackgroundTexture = PlayerMarkerModule.ModuleInstance.ContentsManager.GetTexture("buttondark.png"),
+				BackgroundTexture = _buttonDarkTexture,
 				ShowBorder = true,
 			};
 			_colorPicker = new ColorPicker()
@@ -60,19 +148,19 @@ namespace Tortle.PlayerMarker.Views
 				Size = new Point(colorPickerBg.Size.X - 20, colorPickerBg.Size.Y - 20),
 				Parent = colorPickerBg,
 				ShowTint = false,
-				Visible = true
+				Visible = true,
 			};
 			_colorPicker.SelectedColorChanged += delegate
 			{
 				_colorPicker.AssociatedColorBox.Color = _colorPicker.SelectedColor;
 				try
 				{
-					PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value =
+					_moduleSettings.Color.Value =
 						_colorPicker.SelectedColor.Name;
 				}
 				catch
 				{
-					PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value = "White0";
+					_moduleSettings.Color.Value = "White0";
 				}
 
 				_colorPickerPanel.Visible = false;
@@ -83,154 +171,158 @@ namespace Tortle.PlayerMarker.Views
 				_colorPicker.Colors.Add(ConvertColor(color.Key, color.Value));
 			}
 
-			var settingPlayerMarkerEnable_Label = new Label()
+			var colorLabel = new Label()
 			{
-				Location = new Point(10, 18),
-				Width = 100,
-				HorizontalAlignment = HorizontalAlignment.Right,
+				Location = new Point(enableLabel.Left, imageSelect.Bottom + 8),
+				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
-				Text = "Enable Marker: ",
-			};
-			var settingPlayerMarkerEnable_Checkbox = new Checkbox()
-			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Right + 5, settingPlayerMarkerEnable_Label.Top + 2),
-				Parent = parentPanel,
-				Checked = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerEnable.Value
-			};
-			settingPlayerMarkerEnable_Checkbox.CheckedChanged += delegate (object sender, CheckChangedEvent e)
-			{
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerEnable.Value = e.Checked;
+				Text = _moduleSettings.Color.DisplayName,
+				BasicTooltipText = _moduleSettings.Color.Description,
 			};
 
-			var settingPlayerMarkerRadius_Label = new Label()
+			_colorBox = new ColorBox()
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerEnable_Label.Bottom + 8),
-				Width = 100,
-				WrapText = false,
+				Location = new Point(colorLabel.Right + 5, colorLabel.Top - 5),
 				Parent = parentPanel,
-				Text = "Radius: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
-			};
-			var settingsPlayerMarkerRadius_Slider = new TrackBar()
-			{
-				Location =
-					new Point(settingPlayerMarkerRadius_Label.Right + 5, settingPlayerMarkerRadius_Label.Top + 2),
-				Width = 250,
-				MaxValue = 40,
-				MinValue = 1,
-				Value = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerRadius.Value,
-				Parent = parentPanel,
-			};
-			settingsPlayerMarkerRadius_Slider.ValueChanged += delegate (object sender, ValueEventArgs<float> args)
-			{
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerRadius.Value = args.Value;
+				Color = ConvertColor(_moduleSettings.Color.Value,
+					ColorPresets.Colors[_moduleSettings.Color.Value]),
 			};
 
-			var settingPlayerMarkerColor_Label = new Label()
-			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerRadius_Label.Bottom + 8),
-				Width = 100,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = "Color: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
-			};
-			_settingPlayerMarkerColorBox = new ColorBox()
-			{
-				Location = new Point(settingPlayerMarkerColor_Label.Right + 5, settingPlayerMarkerColor_Label.Top - 5),
-				Parent = parentPanel,
-				Color = ConvertColor(PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value,
-					ColorPresets.Colors[PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerColor.Value]),
-			};
-			_settingPlayerMarkerColorBox.Click += delegate (object sender, MouseEventArgs e)
+			_colorBox.Click += delegate(object sender, MouseEventArgs e)
 			{
 				_colorPicker.AssociatedColorBox = (ColorBox)sender;
 				_colorPickerPanel.Visible = !_colorPickerPanel.Visible;
 			};
 
-			var settingPlayerMarkerOpacity_Label = new Label()
+			#endregion
+
+			Logger.Debug("Building 'Size' setting controls");
+			#region Size
+
+			var sizeLabel = new Label()
 			{
-				Location =
-					new Point(settingPlayerMarkerEnable_Label.Left, _settingPlayerMarkerColorBox.Bottom + 8),
-				Width = 100,
+				Location = new Point(enableLabel.Left, _colorBox.Bottom + 8),
+				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
-				Text = "Opacity: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
+				Text = _moduleSettings.Size.DisplayName,
+				BasicTooltipText = _moduleSettings.Size.Description,
 			};
-			var settingPlayerMarkerOpacity_Slider = new TrackBar()
+
+			var sizeSlider = new TrackBar()
 			{
-				Location = new Point(settingPlayerMarkerOpacity_Label.Right + 5,
-					settingPlayerMarkerOpacity_Label.Top + 2),
+				Location =
+					new Point(sizeLabel.Right + 5, sizeLabel.Top + 2),
+				Width = 250,
+				MaxValue = 40,
+				MinValue = 1,
+				Value = _moduleSettings.Size.Value * 40,
+				Parent = parentPanel,
+			};
+
+			sizeSlider.ValueChanged += delegate(object sender, ValueEventArgs<float> args)
+			{
+				_moduleSettings.Size.Value = args.Value / 40;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Opacity' setting controls");
+			#region Opacity
+
+			var opacityLabel = new Label()
+			{
+				Location =
+					new Point(enableLabel.Left, sizeLabel.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.Opacity.DisplayName,
+				BasicTooltipText = _moduleSettings.Opacity.Description,
+			};
+
+			var opacitySlider = new TrackBar()
+			{
+				Location = new Point(opacityLabel.Right + 5,
+					opacityLabel.Top + 2),
 				Width = 250,
 				MaxValue = 100,
 				MinValue = 0,
-				Value = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerOpacity.Value * 100,
+				Value = _moduleSettings.Opacity.Value * 100,
 				Parent = parentPanel,
-			};
-			settingPlayerMarkerOpacity_Slider.ValueChanged += delegate
-			{
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerOpacity.Value =
-					settingPlayerMarkerOpacity_Slider.Value / 100;
 			};
 
-			var settingPlayerMarkerVerticalOffset_Label = new Label()
+			opacitySlider.ValueChanged += delegate
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerOpacity_Label.Bottom + 8),
-				Width = 100,
+				_moduleSettings.Opacity.Value =
+					opacitySlider.Value / 100;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Vertical Offset' setting controls");
+			#region Vertical Offset
+
+			var verticalOffsetLabel = new Label()
+			{
+				Location = new Point(enableLabel.Left, opacityLabel.Bottom + 8),
+				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
-				Text = "Vertical Offset: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
+				Text = _moduleSettings.VerticalOffset.DisplayName,
+				BasicTooltipText = _moduleSettings.VerticalOffset.Description,
 			};
-			var settingPlayerMarkerVerticalOffset_Slider = new TrackBar()
+
+			var verticalOffsetSlider = new TrackBar()
 			{
-				Location = new Point(settingPlayerMarkerVerticalOffset_Label.Right + 5, settingPlayerMarkerVerticalOffset_Label.Top + 2),
+				Location = new Point(verticalOffsetLabel.Right + 5, verticalOffsetLabel.Top + 2),
 				Width = 250,
-				MaxValue = 40,
+				MaxValue = 60,
 				MinValue = 0,
-				Value = (PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerVerticalOffset.Value * 5) + 10,
+				Value = _moduleSettings.VerticalOffset.Value * 10,
 				Parent = parentPanel,
-			};
-			settingPlayerMarkerVerticalOffset_Slider.ValueChanged += delegate
-			{
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerVerticalOffset.Value =
-					(settingPlayerMarkerVerticalOffset_Slider.Value - 10) / 5;
 			};
 
-			var settingPlayerMarkerTextureLabel = new Label()
+			verticalOffsetSlider.ValueChanged += delegate
 			{
-				Location = new Point(settingPlayerMarkerEnable_Label.Left, settingPlayerMarkerVerticalOffset_Label.Bottom + 8),
-				Width = 100,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = "Marker Image: ",
-				HorizontalAlignment = HorizontalAlignment.Right,
+				_moduleSettings.VerticalOffset.Value = verticalOffsetSlider.Value / 10;
 			};
-			var settingPlayerMarkerTexture_Select = new Dropdown()
-			{
-				Location = new Point(settingPlayerMarkerTextureLabel.Right + 5, settingPlayerMarkerTextureLabel.Top),
-				Width = 250,
-				Parent = parentPanel,
-			};
-			foreach (var markerTexture in PlayerMarkerModule.ModuleInstance.MarkerTextures)
-			{
-				settingPlayerMarkerTexture_Select.Items.Add(markerTexture.Key);
-			}
-			settingPlayerMarkerTexture_Select.SelectedItem = PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value;
-			settingPlayerMarkerTexture_Select.ValueChanged += delegate {
-				PlayerMarkerModule.ModuleInstance.SettingPlayerMarkerImage.Value = settingPlayerMarkerTexture_Select.SelectedItem;
-			};
+
+			#endregion
+
+			Logger.Info("Finished building settings view");
 		}
 
+		/// <summary>
+		/// Converts a <see cref="Microsoft.Xna.Framework.Color"/> name string into a <see cref="Color"/>.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="color"></param>
+		/// <returns>A <see cref="Color"/>.</returns>
 		private static Color ConvertColor(string name, Microsoft.Xna.Framework.Color color)
 		{
 			return new Color()
 			{
-				Name = name,
-				Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } }
+				Name = name, Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } },
 			};
+		}
+
+		/// <summary>
+		/// Loads all required textures.
+		/// </summary>
+		public void LoadTextures()
+		{
+			Logger.Info("Loading textures");
+			_panelBackgroundTexture = _contentsManager.GetTexture("panelBackground.png");
+			_buttonDarkTexture = _contentsManager.GetTexture("buttonDark.png");
+		}
+
+		public void Dispose()
+		{
+			Logger.Debug("Disposing");
+			_panelBackgroundTexture?.Dispose();
+			_buttonDarkTexture?.Dispose();
 		}
 	}
 }
