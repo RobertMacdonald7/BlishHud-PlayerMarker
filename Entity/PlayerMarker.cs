@@ -6,15 +6,39 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tortle.PlayerMarker.Entity
 {
+	/// <summary>
+	/// An entity that is rendered above the player's head.
+	/// </summary>
 	public class PlayerMarker : IEntity
 	{
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s texture.
+		/// </summary>
 		public Texture2D MarkerTexture { get; set; }
+
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s opacity.
+		/// </summary>
 		public float MarkerOpacity { get; set; }
+
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s visibility.
+		/// </summary>
 		public bool Visible { get; set; }
+
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s color.
+		/// </summary>
 		public Color MarkerColor { get; set; }
 
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s size.
+		/// </summary>
 		public Vector3 Size { get; set; }
 
+		/// <summary>
+		/// The <see cref="PlayerMarker"/>'s vertical offset.
+		/// </summary>
 		public float VerticalOffset { get; set; }
 
 		public float DrawOrder => 0;
@@ -31,6 +55,9 @@ namespace Tortle.PlayerMarker.Entity
 			_vertex = new VertexPositionColorTexture[4];
 		}
 
+		/// <summary>
+		/// Updates the marker's Size and Color.
+		/// </summary>
 		public void UpdateMarker()
 		{
 			_vertex[0].Position = new Vector3(-1, 1, 1) * Size;
@@ -49,7 +76,7 @@ namespace Tortle.PlayerMarker.Entity
 
 		public void Render(GraphicsDevice graphicsDevice, IWorld world, ICamera camera)
 		{
-			if (!Visible)
+			if (!Visible || MarkerTexture == null)
 			{
 				return;
 			}
@@ -58,13 +85,11 @@ namespace Tortle.PlayerMarker.Entity
 			var y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
 			var z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
 
-			var panAngleRad = (float)(Math.Atan2(GameService.Gw2Mumble.PlayerCamera.Forward.Y,
-				GameService.Gw2Mumble.PlayerCamera.Forward.X));
-			var pitchAngleRad = (float)(Math.Asin(GameService.Gw2Mumble.PlayerCamera.Forward.Z));
+			var panAngleRad = (float)Math.Atan2(camera.Forward.Y, camera.Forward.X);
+			var pitchAngleRad = (float)Math.Asin(camera.Forward.Z);
 
-			// TODO - Add option to remove 'facing2' from the x rotation so that the marker doesn't 'face' the tilt of the camera.
-			var rotationMatrixX = Matrix.CreateRotationX((float)(pitchAngleRad + 2 * Math.PI / 4));
-			var rotationMatrixZ = Matrix.CreateRotationZ((float)(panAngleRad - 2 * Math.PI / 4));
+			var rotationMatrixX = Matrix.CreateRotationX((float)(pitchAngleRad + Math.PI / 2));
+			var rotationMatrixZ = Matrix.CreateRotationZ((float)(panAngleRad - Math.PI / 2));
 			var translationMatrix = Matrix.CreateTranslation(x, y, z);
 
 			// Rotate the marker to always face the camera, then translate it onto the character's position
@@ -79,7 +104,7 @@ namespace Tortle.PlayerMarker.Entity
 				Projection = GameService.Gw2Mumble.PlayerCamera.Projection,
 				World = worldMatrix,
 				Texture = MarkerTexture,
-				Alpha = MarkerOpacity
+				Alpha = MarkerOpacity,
 			};
 
 			var geometryBuffer = new VertexBuffer(graphicsDevice, VertexPositionColorTexture.VertexDeclaration, 4,

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 1,
 	"name": "Player Marker",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"namespace": "Tortle.PlayerMarker",
 	"package": "PlayerMarker.dll",
 	"description": "Displays a marker at the player's location.",
@@ -11,7 +11,7 @@
 	"url": "https://github.com/RobertMacdonald7/BlishHud-PlayerMarker",
 	"contributors": [
 		{
-			"name": "Tortle",
+			"name": "Robert Macdonald",
 			"username": "LuckyTortle.1529",
 			"url": "https://github.com/RobertMacdonald7"
 		},
