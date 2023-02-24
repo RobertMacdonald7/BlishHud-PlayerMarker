@@ -1,7 +1,7 @@
 {
 	"manifest_version": 1,
 	"name": "Player Marker",
-	"version": "0.2.1",
+	"version": "1.0.0",
 	"namespace": "Tortle.PlayerMarker",
 	"package": "PlayerMarker.dll",
 	"description": "Displays a marker at the player's location.",

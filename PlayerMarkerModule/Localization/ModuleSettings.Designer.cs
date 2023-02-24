@@ -61,15 +61,6 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The color of the marker..
-        /// </summary>
-        internal static string PlayerMarkerColor_Description {
-            get {
-                return ResourceManager.GetString("PlayerMarkerColor_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Color.
         /// </summary>
         internal static string PlayerMarkerColor_Name {
@@ -79,11 +70,11 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to The color of the marker..
         /// </summary>
-        internal static string PlayerMarkerEnable_Description {
+        internal static string PlayerMarkerColor_Tooltip {
             get {
-                return ResourceManager.GetString("PlayerMarkerEnable_Description", resourceCulture);
+                return ResourceManager.GetString("PlayerMarkerColor_Tooltip", resourceCulture);
             }
         }
         
@@ -97,7 +88,16 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The displayed marker image..
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string PlayerMarkerEnable_Tooltip {
+            get {
+                return ResourceManager.GetString("PlayerMarkerEnable_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom images can be placed in the module&apos;s &apos;tortle/playermarkers&apos; directory..
         /// </summary>
         internal static string PlayerMarkerImage_Description {
             get {
@@ -115,11 +115,11 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The transparency of the marker..
+        ///   Looks up a localized string similar to The displayed marker image..
         /// </summary>
-        internal static string PlayerMarkerOpacity_Description {
+        internal static string PlayerMarkerImage_Tooltip {
             get {
-                return ResourceManager.GetString("PlayerMarkerOpacity_Description", resourceCulture);
+                return ResourceManager.GetString("PlayerMarkerImage_Tooltip", resourceCulture);
             }
         }
         
@@ -133,11 +133,11 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The size of the marker..
+        ///   Looks up a localized string similar to The transparency of the marker..
         /// </summary>
-        internal static string PlayerMarkerSize_Description {
+        internal static string PlayerMarkerOpacity_Tooltip {
             get {
-                return ResourceManager.GetString("PlayerMarkerSize_Description", resourceCulture);
+                return ResourceManager.GetString("PlayerMarkerOpacity_Tooltip", resourceCulture);
             }
         }
         
@@ -151,11 +151,11 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The vertical position of the marker..
+        ///   Looks up a localized string similar to The size of the marker..
         /// </summary>
-        internal static string PlayerMarkerVerticalOffset_Description {
+        internal static string PlayerMarkerSize_Tooltip {
             get {
-                return ResourceManager.GetString("PlayerMarkerVerticalOffset_Description", resourceCulture);
+                return ResourceManager.GetString("PlayerMarkerSize_Tooltip", resourceCulture);
             }
         }
         
@@ -165,6 +165,15 @@ namespace Tortle.PlayerMarker.Localization {
         internal static string PlayerMarkerVerticalOffset_Name {
             get {
                 return ResourceManager.GetString("PlayerMarkerVerticalOffset_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The vertical position of the marker..
+        /// </summary>
+        internal static string PlayerMarkerVerticalOffset_Tooltip {
+            get {
+                return ResourceManager.GetString("PlayerMarkerVerticalOffset_Tooltip", resourceCulture);
             }
         }
     }

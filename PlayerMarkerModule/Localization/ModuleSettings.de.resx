@@ -117,40 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="PlayerMarkerColor_Description" xml:space="preserve">
+  <data name="PlayerMarkerColor_Tooltip" xml:space="preserve">
     <value>Die Farbe des Markers.</value>
   </data>
   <data name="PlayerMarkerColor_Name" xml:space="preserve">
     <value>Farbe</value>
   </data>
-  <data name="PlayerMarkerEnable_Description" xml:space="preserve">
+  <data name="PlayerMarkerEnable_Tooltip" xml:space="preserve">
     <value />
   </data>
   <data name="PlayerMarkerEnable_Name" xml:space="preserve">
     <value>Aktiviert</value>
   </data>
-  <data name="PlayerMarkerImage_Description" xml:space="preserve">
+  <data name="PlayerMarkerImage_Tooltip" xml:space="preserve">
     <value>Das angezeigte Markerbild.</value>
   </data>
   <data name="PlayerMarkerImage_Name" xml:space="preserve">
     <value>Bild</value>
   </data>
-  <data name="PlayerMarkerOpacity_Description" xml:space="preserve">
+  <data name="PlayerMarkerOpacity_Tooltip" xml:space="preserve">
     <value>Die Transparenz des Markers.</value>
   </data>
   <data name="PlayerMarkerOpacity_Name" xml:space="preserve">
     <value>Deckkraft</value>
   </data>
-  <data name="PlayerMarkerSize_Description" xml:space="preserve">
+  <data name="PlayerMarkerSize_Tooltip" xml:space="preserve">
     <value>Die Größe der Markierung.</value>
   </data>
   <data name="PlayerMarkerSize_Name" xml:space="preserve">
     <value>Größe</value>
   </data>
-  <data name="PlayerMarkerVerticalOffset_Description" xml:space="preserve">
+  <data name="PlayerMarkerVerticalOffset_Tooltip" xml:space="preserve">
     <value>Die vertikale Position des Markers.</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Name" xml:space="preserve">
     <value>Vertikaler Versatz</value>
+  </data>
+  <data name="PlayerMarkerImage_Description" xml:space="preserve">
+    <value>Benutzerdefinierte Bilder können im Verzeichnis "tortle/playermarkers" des Moduls abgelegt werden.</value>
   </data>
 </root>

@@ -117,40 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="PlayerMarkerColor_Description" xml:space="preserve">
+  <data name="PlayerMarkerColor_Tooltip" xml:space="preserve">
     <value>La couleur du marqueur.</value>
   </data>
   <data name="PlayerMarkerColor_Name" xml:space="preserve">
     <value>Couleur</value>
   </data>
-  <data name="PlayerMarkerEnable_Description" xml:space="preserve">
+  <data name="PlayerMarkerEnable_Tooltip" xml:space="preserve">
     <value />
   </data>
   <data name="PlayerMarkerEnable_Name" xml:space="preserve">
     <value>Activé</value>
   </data>
-  <data name="PlayerMarkerImage_Description" xml:space="preserve">
+  <data name="PlayerMarkerImage_Tooltip" xml:space="preserve">
     <value>L'image du marqueur affichée.</value>
   </data>
   <data name="PlayerMarkerImage_Name" xml:space="preserve">
     <value>Image</value>
   </data>
-  <data name="PlayerMarkerOpacity_Description" xml:space="preserve">
+  <data name="PlayerMarkerOpacity_Tooltip" xml:space="preserve">
     <value>La transparence du marqueur.</value>
   </data>
   <data name="PlayerMarkerOpacity_Name" xml:space="preserve">
     <value>Opacité</value>
   </data>
-  <data name="PlayerMarkerSize_Description" xml:space="preserve">
+  <data name="PlayerMarkerSize_Tooltip" xml:space="preserve">
     <value>La taille du marqueur.</value>
   </data>
   <data name="PlayerMarkerSize_Name" xml:space="preserve">
     <value>Taille</value>
   </data>
-  <data name="PlayerMarkerVerticalOffset_Description" xml:space="preserve">
+  <data name="PlayerMarkerVerticalOffset_Tooltip" xml:space="preserve">
     <value>La position verticale du marqueur.</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Name" xml:space="preserve">
     <value>Décalage vertical</value>
+  </data>
+  <data name="PlayerMarkerImage_Description" xml:space="preserve">
+    <value>Les images personnalisées peuvent être placées dans le répertoire "tortle/playermarkers" du module.</value>
   </data>
 </root>

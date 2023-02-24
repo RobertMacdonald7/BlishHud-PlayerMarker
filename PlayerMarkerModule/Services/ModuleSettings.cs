@@ -41,22 +41,22 @@ namespace Tortle.PlayerMarker.Services
 			Logger.Info("Initializing");
 			Enabled = settingCollection.DefineSetting("PlayerMarkerEnable", true,
 				() => Localization.ModuleSettings.PlayerMarkerEnable_Name,
-				() => Localization.ModuleSettings.PlayerMarkerEnable_Description);
+				() => Localization.ModuleSettings.PlayerMarkerEnable_Tooltip);
 			Color = settingCollection.DefineSetting("PlayerMarkerColor", ColorPresets.Default,
 				() => Localization.ModuleSettings.PlayerMarkerColor_Name,
-				() => Localization.ModuleSettings.PlayerMarkerColor_Description);
+				() => Localization.ModuleSettings.PlayerMarkerColor_Tooltip);
 			Size = settingCollection.DefineSetting("PlayerMarkerSize", 0.25f,
 				() => Localization.ModuleSettings.PlayerMarkerSize_Name,
-				() => Localization.ModuleSettings.PlayerMarkerSize_Description);
+				() => Localization.ModuleSettings.PlayerMarkerSize_Tooltip);
 			Opacity = settingCollection.DefineSetting("PlayerMarkerOpacity", 1f,
 				() => Localization.ModuleSettings.PlayerMarkerOpacity_Name,
-				() => Localization.ModuleSettings.PlayerMarkerOpacity_Description);
+				() => Localization.ModuleSettings.PlayerMarkerOpacity_Tooltip);
 			VerticalOffset = settingCollection.DefineSetting("PlayerMarkerVerticalOffset", 2.5f,
 				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Name,
-				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Description);
+				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Tooltip);
 			ImageName = settingCollection.DefineSetting("PlayerMarkerImage", DefaultMarkerFileNames[0],
 				() => Localization.ModuleSettings.PlayerMarkerImage_Name,
-				() => Localization.ModuleSettings.PlayerMarkerImage_Description);
+				() => Localization.ModuleSettings.PlayerMarkerImage_Tooltip);
 
 			Enabled.SettingChanged += UpdateSettings_Enabled;
 			Color.SettingChanged += UpdateSettings_Color;

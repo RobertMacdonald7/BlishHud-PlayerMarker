@@ -167,9 +167,19 @@ namespace Tortle.PlayerMarker.Views
 			Logger.Debug("Building 'Image' setting controls");
 			#region Image
 
-			var imageLabel = new Label()
+			var imageDescription = new Label()
 			{
 				Location = new Point(_topLeft.X, colorBox.Bottom + 8),
+				WrapText = true,
+				Width = parentPanel.Width / 2 - _topLeft.X * 2,
+				AutoSizeHeight = true,
+				Parent = parentPanel,
+				Text = Localization.ModuleSettings.PlayerMarkerImage_Description,
+			};
+
+			var imageLabel = new Label()
+			{
+				Location = new Point(_topLeft.X, imageDescription.Bottom + 8),
 				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
