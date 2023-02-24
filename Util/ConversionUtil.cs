@@ -13,7 +13,7 @@ namespace Tortle.PlayerMarker.Util
 		public static Color ToRgb(string colorName)
 		{
 			var success = ColorPresets.Colors.TryGetValue(colorName, out var color);
-			return success ? color : ColorPresets.Colors["White0"];
+			return success ? color : ColorPresets.Colors[ColorPresets.Default];
 		}
 	}
 }

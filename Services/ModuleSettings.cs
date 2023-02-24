@@ -2,6 +2,7 @@
 using Blish_HUD;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
+using Tortle.PlayerMarker.Models;
 using Tortle.PlayerMarker.Util;
 
 namespace Tortle.PlayerMarker.Services
@@ -41,7 +42,7 @@ namespace Tortle.PlayerMarker.Services
 			Enabled = settingCollection.DefineSetting("PlayerMarkerEnable", true,
 				() => Localization.ModuleSettings.PlayerMarkerEnable_Name,
 				() => Localization.ModuleSettings.PlayerMarkerEnable_Description);
-			Color = settingCollection.DefineSetting("PlayerMarkerColor", "White0",
+			Color = settingCollection.DefineSetting("PlayerMarkerColor", ColorPresets.Default,
 				() => Localization.ModuleSettings.PlayerMarkerColor_Name,
 				() => Localization.ModuleSettings.PlayerMarkerColor_Description);
 			Size = settingCollection.DefineSetting("PlayerMarkerSize", 0.25f,
