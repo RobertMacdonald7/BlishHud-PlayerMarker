@@ -41,7 +41,15 @@ namespace Tortle.PlayerMarker.Entity
 		/// </summary>
 		public float VerticalOffset { get; set; }
 
-		public float DrawOrder => 0;
+		public float DrawOrder
+		{
+			get
+			{
+				var position = GameService.Gw2Mumble.PlayerCharacter.Position;
+				position.Z += VerticalOffset;
+				return Vector3.DistanceSquared(position, GameService.Graphics.World.Camera.Position);
+			}
+		}
 
 		private readonly VertexPositionColorTexture[] _vertex;
 
@@ -51,6 +59,7 @@ namespace Tortle.PlayerMarker.Entity
 			MarkerOpacity = 1f;
 			MarkerColor = Color.White;
 			Visible = false;
+			VerticalOffset = 0f;
 
 			_vertex = new VertexPositionColorTexture[4];
 		}
@@ -84,7 +93,7 @@ namespace Tortle.PlayerMarker.Entity
 			var x = GameService.Gw2Mumble.PlayerCharacter.Position.X;
 			var y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
 			var z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
-
+			
 			var panAngleRad = (float)Math.Atan2(camera.Forward.Y, camera.Forward.X);
 			var pitchAngleRad = (float)Math.Asin(camera.Forward.Z);
 
