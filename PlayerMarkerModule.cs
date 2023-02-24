@@ -6,6 +6,7 @@ using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
+using Tortle.PlayerMarker.Models;
 using Tortle.PlayerMarker.Services;
 using Tortle.PlayerMarker.Util;
 using Tortle.PlayerMarker.Views;
@@ -56,12 +57,7 @@ namespace Tortle.PlayerMarker
 
 			await _textureCache.Load(_moduleSettings.DefaultMarkerFileNames);
 
-			// If the file got removed, reset the setting to default
-			if (!_textureCache.ContainsKey(_moduleSettings.ImageName.Value))
-			{
-				Logger.Warn("Resetting 'ImageName' setting back to default");
-				_moduleSettings.ImageName.Value = _moduleSettings.DefaultMarkerFileNames[0];
-			}
+			NormalizeSettings();
 
 			// Force the current image's texture to load
 			_ = _textureCache.Get(_moduleSettings.ImageName.Value);
@@ -73,7 +69,6 @@ namespace Tortle.PlayerMarker
 
 		protected override void OnModuleLoaded(EventArgs e)
 		{
-
 			var diameterPx = _moduleSettings.Size.Value;
 			_playerMarker.Visible = _moduleSettings.Enabled.Value;
 			_playerMarker.MarkerColor = ConversionUtil.ToRgb(_moduleSettings.Color.Value);
@@ -96,6 +91,23 @@ namespace Tortle.PlayerMarker
 			_settingsView.Dispose();
 
 			GameService.Graphics.World.RemoveEntity(_playerMarker);
+		}
+
+		private void NormalizeSettings()
+		{
+			// If the file got removed, reset the setting to default
+			if (!_textureCache.ContainsKey(_moduleSettings.ImageName.Value))
+			{
+				Logger.Warn("Resetting {setting} setting back to default", nameof(_moduleSettings.ImageName));
+				_moduleSettings.ImageName.Value = _moduleSettings.DefaultMarkerFileNames[0];
+			}
+
+			// If the color isn't supported, reset it to default
+			if (!ColorPresets.Colors.ContainsKey(_moduleSettings.Color.Value))
+			{
+				Logger.Warn("Resetting {setting} setting back to default", nameof(_moduleSettings.Color));
+				_moduleSettings.Color.Value = ColorPresets.Default;
+			}
 		}
 	}
 }
