@@ -34,7 +34,26 @@ namespace Tortle.PlayerMarker.Services
 		/// <param name="defaultImageFileNames"></param>
 		public async Task Load(IEnumerable<string> defaultImageFileNames)
 		{
-			var imageDirectory = _directoriesManager.GetFullDirectoryPath("tortle/playermarkers");
+			var imageDirectory = Path.Combine(_directoriesManager.GetFullDirectoryPath("tortle"), "playermarkers");
+			if (!Directory.Exists(imageDirectory))
+			{
+				try
+				{
+					Directory.CreateDirectory(imageDirectory);
+				}
+				catch (UnauthorizedAccessException e)
+				{
+					Logger.Error(e, "Unable to create {directory}", imageDirectory);
+					Blish_HUD.Debug.Contingency.NotifyFileSaveAccessDenied(imageDirectory, "creating playermarkers directory");
+					return;
+				}
+				catch (Exception e)
+				{
+					Logger.Error(e, "Unable to copy default markers into {directory}", imageDirectory);
+					return;
+				}
+			}
+
 			await CopyDefaultMarkerImages(defaultImageFileNames, imageDirectory);
 			LoadMarkerImages(imageDirectory);
 		}
