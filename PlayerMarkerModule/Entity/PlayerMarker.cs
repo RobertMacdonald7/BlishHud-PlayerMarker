@@ -93,7 +93,7 @@ namespace Tortle.PlayerMarker.Entity
 			var x = GameService.Gw2Mumble.PlayerCharacter.Position.X;
 			var y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
 			var z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
-			
+
 			var panAngleRad = (float)Math.Atan2(camera.Forward.Y, camera.Forward.X);
 			var pitchAngleRad = (float)Math.Asin(camera.Forward.Z);
 
