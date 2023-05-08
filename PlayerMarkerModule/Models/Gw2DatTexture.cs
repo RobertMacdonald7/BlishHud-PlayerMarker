@@ -21,6 +21,7 @@ namespace Tortle.PlayerMarker.Models
 			{
 				return _texture;
 			}
+
 			_texture = AsyncTexture2D.FromAssetId(_assetId);
 			return _texture;
 		}

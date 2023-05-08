@@ -54,7 +54,8 @@ namespace Tortle.PlayerMarker.Services
 			VerticalOffset = settingCollection.DefineSetting("PlayerMarkerVerticalOffset", 2.5f,
 				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Name,
 				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Tooltip);
-			ImageName = settingCollection.DefineSetting("PlayerMarkerImage", _markerTextureManager.DefaultTextures.First().Id,
+			ImageName = settingCollection.DefineSetting("PlayerMarkerImage",
+				_markerTextureManager.DefaultTextures.First().Id,
 				() => Localization.ModuleSettings.PlayerMarkerImage_Name,
 				() => Localization.ModuleSettings.PlayerMarkerImage_Tooltip);
 

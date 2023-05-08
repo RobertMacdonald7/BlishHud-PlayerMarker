@@ -9,11 +9,12 @@ namespace Tortle.PlayerMarker.Util
 	public static class TextureUtil
 	{
 		private static readonly Logger Logger = Logger.GetLogger(typeof(TextureUtil));
+
 		/// <summary>
 		/// Creates a Texture2D from a file path.
 		/// <returns>A <see cref="Texture2D"/>; if unsuccessful, an error texture is returned.</returns>
 		/// </summary>
-		public async static Task<Texture2D> FromPathPremultipliedAsync(string filePath)
+		public static async Task<Texture2D> FromPathPremultipliedAsync(string filePath)
 		{
 			return await Task.Run(() =>
 			{

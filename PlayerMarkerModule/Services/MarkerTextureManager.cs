@@ -56,7 +56,8 @@ namespace Tortle.PlayerMarker.Services
 				catch (UnauthorizedAccessException e)
 				{
 					Logger.Error(e, "Unable to create {directory}", _imageDirectory);
-					Blish_HUD.Debug.Contingency.NotifyFileSaveAccessDenied(_imageDirectory, "creating playermarkers directory");
+					Blish_HUD.Debug.Contingency.NotifyFileSaveAccessDenied(_imageDirectory,
+						"creating playermarkers directory");
 					return;
 				}
 				catch (Exception e)

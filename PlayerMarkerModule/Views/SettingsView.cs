@@ -54,6 +54,7 @@ namespace Tortle.PlayerMarker.Views
 			};
 
 			Logger.Debug("Building 'Enabled' setting controls");
+
 			#region Enabled
 
 			var enableLabel = new Label()
@@ -82,6 +83,7 @@ namespace Tortle.PlayerMarker.Views
 			#endregion
 
 			Logger.Debug("Building 'Color' setting controls");
+
 			#region Color
 
 			var colorLabel = new Label()
@@ -131,7 +133,7 @@ namespace Tortle.PlayerMarker.Views
 				Visible = true,
 			};
 
-			colorPicker.SelectedColorChanged += delegate (object sender, EventArgs args)
+			colorPicker.SelectedColorChanged += delegate(object sender, EventArgs args)
 			{
 				colorPicker.AssociatedColorBox.Color = colorPicker.SelectedColor;
 				_moduleSettings.Color.Value = colorPicker.SelectedColor.Name;
@@ -147,7 +149,7 @@ namespace Tortle.PlayerMarker.Views
 				colorPicker.Colors.Add(ConvertColor(color.Key, color.Value));
 			}
 
-			colorBox.Click += delegate (object sender, MouseEventArgs e)
+			colorBox.Click += delegate(object sender, MouseEventArgs e)
 			{
 				colorPicker.AssociatedColorBox = (ColorBox)sender;
 				colorPickerPanel.Visible = !colorPickerPanel.Visible;
@@ -156,7 +158,7 @@ namespace Tortle.PlayerMarker.Views
 			parentPanel.LeftMouseButtonPressed += delegate
 			{
 				if (colorPickerPanel.Visible && !colorPickerPanel.MouseOver &&
-					!colorBox.MouseOver)
+				    !colorBox.MouseOver)
 				{
 					colorPickerPanel.Visible = false;
 				}
@@ -165,6 +167,7 @@ namespace Tortle.PlayerMarker.Views
 			#endregion
 
 			Logger.Debug("Building 'Image' setting controls");
+
 			#region Image
 
 			var imageDescription = new Label()
@@ -189,9 +192,7 @@ namespace Tortle.PlayerMarker.Views
 
 			var imageSelect = new Dropdown()
 			{
-				Location = new Point(imageLabel.Right + 5, imageLabel.Top),
-				Width = 250,
-				Parent = parentPanel,
+				Location = new Point(imageLabel.Right + 5, imageLabel.Top), Width = 250, Parent = parentPanel,
 			};
 
 			foreach (var name in _markerTextureManager.GetNames())
@@ -209,6 +210,7 @@ namespace Tortle.PlayerMarker.Views
 			#endregion
 
 			Logger.Debug("Building 'Size' setting controls");
+
 			#region Size
 
 			var sizeLabel = new Label()
@@ -240,6 +242,7 @@ namespace Tortle.PlayerMarker.Views
 			#endregion
 
 			Logger.Debug("Building 'Opacity' setting controls");
+
 			#region Opacity
 
 			var opacityLabel = new Label()
@@ -273,6 +276,7 @@ namespace Tortle.PlayerMarker.Views
 			#endregion
 
 			Logger.Debug("Building 'Vertical Offset' setting controls");
+
 			#region Vertical Offset
 
 			var verticalOffsetLabel = new Label()
