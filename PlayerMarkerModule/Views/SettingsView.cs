@@ -20,7 +20,7 @@ namespace Tortle.PlayerMarker.Views
 	{
 		private static readonly Logger Logger = Logger.GetLogger(typeof(SettingsView));
 
-		private readonly TextureCache _textureCache;
+		private readonly MarkerTextureManager _markerTextureManager;
 		private readonly ModuleSettings _moduleSettings;
 		private readonly ContentsManager _contentsManager;
 
@@ -33,10 +33,10 @@ namespace Tortle.PlayerMarker.Views
 
 		#endregion
 
-		public SettingsView(TextureCache textureCache, ModuleSettings moduleSettings,
+		public SettingsView(MarkerTextureManager markerTextureManager, ModuleSettings moduleSettings,
 			ContentsManager contentsManager)
 		{
-			_textureCache = textureCache;
+			_markerTextureManager = markerTextureManager;
 			_moduleSettings = moduleSettings;
 			_contentsManager = contentsManager;
 		}
@@ -194,7 +194,7 @@ namespace Tortle.PlayerMarker.Views
 				Parent = parentPanel,
 			};
 
-			foreach (var name in _textureCache.GetNames())
+			foreach (var name in _markerTextureManager.GetNames())
 			{
 				imageSelect.Items.Add(name);
 			}

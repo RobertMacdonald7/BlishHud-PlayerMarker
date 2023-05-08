@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Blish_HUD;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
@@ -15,7 +17,7 @@ namespace Tortle.PlayerMarker.Services
 		private static readonly Logger Logger = Logger.GetLogger(typeof(ModuleSettings));
 
 		private readonly Entity.PlayerMarker _playerMarker;
-		private readonly TextureCache _textureCache;
+		private readonly MarkerTextureManager _markerTextureManager;
 
 		public SettingEntry<bool> Enabled { get; private set; }
 		public SettingEntry<string> Color { get; private set; }
@@ -24,23 +26,9 @@ namespace Tortle.PlayerMarker.Services
 		public SettingEntry<float> VerticalOffset { get; private set; }
 		public SettingEntry<string> ImageName { get; private set; }
 
-		public string[] DefaultMarkerFileNames { get; } =
+		public ModuleSettings(MarkerTextureManager markerTextureManager, Entity.PlayerMarker playerMarker)
 		{
-			"gw2PersonalTarget.png",
-			"circleFill.png",
-			"gw2CommanderArrow.png",
-			"gw2CommanderCircle.png",
-			"gw2CommanderHeart.png",
-			"gw2CommanderSquare.png",
-			"gw2CommanderStar.png",
-			"gw2CommanderSpiral.png",
-			"gw2CommanderTriangle.png",
-			"gw2CommanderX.png",
-		};
-
-		public ModuleSettings(TextureCache textureCache, Entity.PlayerMarker playerMarker)
-		{
-			_textureCache = textureCache;
+			_markerTextureManager = markerTextureManager;
 			_playerMarker = playerMarker;
 		}
 
@@ -66,7 +54,7 @@ namespace Tortle.PlayerMarker.Services
 			VerticalOffset = settingCollection.DefineSetting("PlayerMarkerVerticalOffset", 2.5f,
 				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Name,
 				() => Localization.ModuleSettings.PlayerMarkerVerticalOffset_Tooltip);
-			ImageName = settingCollection.DefineSetting("PlayerMarkerImage", DefaultMarkerFileNames[0],
+			ImageName = settingCollection.DefineSetting("PlayerMarkerImage", _markerTextureManager.DefaultTextures.First().Id,
 				() => Localization.ModuleSettings.PlayerMarkerImage_Name,
 				() => Localization.ModuleSettings.PlayerMarkerImage_Tooltip);
 
@@ -118,7 +106,7 @@ namespace Tortle.PlayerMarker.Services
 
 		private void UpdateSettings_Image(object sender, ValueChangedEventArgs<string> e)
 		{
-			_playerMarker.MarkerTexture = _textureCache.Get(e.NewValue);
+			_playerMarker.MarkerTexture = _markerTextureManager.Get(e.NewValue);
 		}
 	}
 }
