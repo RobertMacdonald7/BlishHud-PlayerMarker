@@ -133,27 +133,33 @@
     <value>L'image du marqueur affichée.</value>
   </data>
   <data name="PlayerMarkerImage_Name" xml:space="preserve">
-    <value>Image</value>
+    <value>Image :</value>
   </data>
   <data name="PlayerMarkerOpacity_Tooltip" xml:space="preserve">
     <value>La transparence du marqueur.</value>
   </data>
   <data name="PlayerMarkerOpacity_Name" xml:space="preserve">
-    <value>Opacité</value>
+    <value>Opacité :</value>
   </data>
   <data name="PlayerMarkerSize_Tooltip" xml:space="preserve">
     <value>La taille du marqueur.</value>
   </data>
   <data name="PlayerMarkerSize_Name" xml:space="preserve">
-    <value>Taille</value>
+    <value>Taille :</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Tooltip" xml:space="preserve">
     <value>La position verticale du marqueur.</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Name" xml:space="preserve">
-    <value>Décalage vertical</value>
+    <value>Décalage vertical :</value>
   </data>
   <data name="PlayerMarkerImage_Description" xml:space="preserve">
     <value>Les images personnalisées peuvent être placées dans le répertoire "tortle/playermarkers" du module.</value>
+  </data>
+  <data name="CleanupDuplicates_Name" xml:space="preserve">
+    <value>Nettoyer les images en double</value>
+  </data>
+  <data name="CleanupDuplicates_Tooltip" xml:space="preserve">
+    <value>{0} doublons à nettoyer.</value>
   </data>
 </root>

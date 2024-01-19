@@ -133,27 +133,33 @@
     <value>Das angezeigte Markerbild.</value>
   </data>
   <data name="PlayerMarkerImage_Name" xml:space="preserve">
-    <value>Bild</value>
+    <value>Bild:</value>
   </data>
   <data name="PlayerMarkerOpacity_Tooltip" xml:space="preserve">
     <value>Die Transparenz des Markers.</value>
   </data>
   <data name="PlayerMarkerOpacity_Name" xml:space="preserve">
-    <value>Deckkraft</value>
+    <value>Deckkraft:</value>
   </data>
   <data name="PlayerMarkerSize_Tooltip" xml:space="preserve">
     <value>Die Größe der Markierung.</value>
   </data>
   <data name="PlayerMarkerSize_Name" xml:space="preserve">
-    <value>Größe</value>
+    <value>Größe:</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Tooltip" xml:space="preserve">
     <value>Die vertikale Position des Markers.</value>
   </data>
   <data name="PlayerMarkerVerticalOffset_Name" xml:space="preserve">
-    <value>Vertikaler Versatz</value>
+    <value>Vertikaler Versatz:</value>
   </data>
   <data name="PlayerMarkerImage_Description" xml:space="preserve">
     <value>Benutzerdefinierte Bilder können im Verzeichnis "tortle/playermarkers" des Moduls abgelegt werden.</value>
+  </data>
+  <data name="CleanupDuplicates_Name" xml:space="preserve">
+    <value>Bereinigen Sie doppelte Bilder</value>
+  </data>
+  <data name="CleanupDuplicates_Tooltip" xml:space="preserve">
+    <value>{0} Duplikate zur Bereinigung.</value>
   </data>
 </root>

@@ -61,6 +61,24 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cleanup Duplicate Images.
+        /// </summary>
+        internal static string CleanupDuplicates_Name {
+            get {
+                return ResourceManager.GetString("CleanupDuplicates_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} duplicates to cleanup..
+        /// </summary>
+        internal static string CleanupDuplicates_Tooltip {
+            get {
+                return ResourceManager.GetString("CleanupDuplicates_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Color.
         /// </summary>
         internal static string PlayerMarkerColor_Name {
@@ -106,7 +124,7 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Image.
+        ///   Looks up a localized string similar to Image:.
         /// </summary>
         internal static string PlayerMarkerImage_Name {
             get {
@@ -124,7 +142,7 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Opacity.
+        ///   Looks up a localized string similar to Opacity:.
         /// </summary>
         internal static string PlayerMarkerOpacity_Name {
             get {
@@ -142,7 +160,7 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Size.
+        ///   Looks up a localized string similar to Size:.
         /// </summary>
         internal static string PlayerMarkerSize_Name {
             get {
@@ -160,7 +178,7 @@ namespace Tortle.PlayerMarker.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vertical Offset.
+        ///   Looks up a localized string similar to Vertical Offset:.
         /// </summary>
         internal static string PlayerMarkerVerticalOffset_Name {
             get {

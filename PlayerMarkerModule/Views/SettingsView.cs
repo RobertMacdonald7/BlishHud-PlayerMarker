@@ -18,9 +18,10 @@ namespace Tortle.PlayerMarker.Views
 	/// </summary>
 	internal class SettingsView : View, IDisposable
 	{
+		private const int SliderWidth = 175;
 		private static readonly Logger Logger = Logger.GetLogger(typeof(SettingsView));
 
-		private readonly TextureCache _textureCache;
+		private readonly MarkerTextureManager _markerTextureManager;
 		private readonly ModuleSettings _moduleSettings;
 		private readonly ContentsManager _contentsManager;
 
@@ -29,14 +30,14 @@ namespace Tortle.PlayerMarker.Views
 
 		#region UI margins
 
-		private readonly Point _topLeft = new Point(10, 18);
+		private readonly Point _topLeft = new Point(10, 10);
 
 		#endregion
 
-		public SettingsView(TextureCache textureCache, ModuleSettings moduleSettings,
+		public SettingsView(MarkerTextureManager markerTextureManager, ModuleSettings moduleSettings,
 			ContentsManager contentsManager)
 		{
-			_textureCache = textureCache;
+			_markerTextureManager = markerTextureManager;
 			_moduleSettings = moduleSettings;
 			_contentsManager = contentsManager;
 		}
@@ -53,12 +54,23 @@ namespace Tortle.PlayerMarker.Views
 				Width = buildPanel.Width,
 			};
 
+			var topMiddleRight = new Point(parentPanel.Width / 2 - 10, 10);
+
 			Logger.Debug("Building 'Enabled' setting controls");
+
 			#region Enabled
+
+			var enableCheckbox = new Checkbox()
+			{
+				Location = new Point(_topLeft.X, _topLeft.Y + 2),
+				Parent = parentPanel,
+				Checked = _moduleSettings.Enabled.Value,
+				Width = 10,
+			};
 
 			var enableLabel = new Label()
 			{
-				Location = _topLeft,
+				Location = new Point(enableCheckbox.Right + 2, _topLeft.Y),
 				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
@@ -66,27 +78,170 @@ namespace Tortle.PlayerMarker.Views
 				BasicTooltipText = _moduleSettings.Enabled.Description,
 			};
 
-			var enableCheckbox = new Checkbox()
-			{
-				Location = new Point(enableLabel.Right + 5, enableLabel.Top + 2),
-				Parent = parentPanel,
-				Checked = _moduleSettings.Enabled.Value,
-				Width = 10,
-			};
-
-			enableCheckbox.CheckedChanged += delegate(object sender, CheckChangedEvent e)
+			enableCheckbox.CheckedChanged += delegate (object sender, CheckChangedEvent e)
 			{
 				_moduleSettings.Enabled.Value = e.Checked;
 			};
 
 			#endregion
 
+			Logger.Debug("Building 'Image' setting controls");
+
+			#region Image
+
+			var imageDescription = new Label()
+			{
+				Location = new Point(_topLeft.X, enableCheckbox.Bottom + 8),
+				WrapText = true,
+				Width = parentPanel.Width / 2 - _topLeft.X * 2,
+				AutoSizeHeight = true,
+				Parent = parentPanel,
+				Text = Localization.ModuleSettings.PlayerMarkerImage_Description,
+			};
+
+			var imageLabel = new Label()
+			{
+				Location = new Point(_topLeft.X, imageDescription.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.ImageName.DisplayName,
+				BasicTooltipText = _moduleSettings.ImageName.Description,
+			};
+
+			var imageSelect = new Dropdown()
+			{
+				Location = new Point(topMiddleRight.X - SliderWidth, imageLabel.Top),
+				Width = SliderWidth,
+				Parent = parentPanel,
+			};
+
+			foreach (var name in _markerTextureManager.GetNames())
+			{
+				imageSelect.Items.Add(name);
+			}
+
+			imageSelect.SelectedItem = _moduleSettings.ImageName.Value;
+
+			imageSelect.ValueChanged += delegate
+			{
+				_moduleSettings.ImageName.Value = imageSelect.SelectedItem;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Size' setting controls");
+
+			#region Size
+
+			var sizeLabel = new Label()
+			{
+				Location = new Point(_topLeft.X, imageLabel.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.Size.DisplayName,
+				BasicTooltipText = _moduleSettings.Size.Description,
+			};
+
+			var sizeSlider = new TrackBar()
+			{
+				Location = new Point(topMiddleRight.X - SliderWidth, sizeLabel.Top + 2),
+				Width = SliderWidth,
+				MaxValue = 40,
+				MinValue = 1,
+				Value = _moduleSettings.Size.Value * 40,
+				Parent = parentPanel,
+			};
+
+			sizeSlider.ValueChanged += delegate (object sender, ValueEventArgs<float> args)
+			{
+				_moduleSettings.Size.Value = args.Value / 40;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Opacity' setting controls");
+
+			#region Opacity
+
+			var opacityLabel = new Label()
+			{
+				Location =
+					new Point(_topLeft.X, sizeLabel.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.Opacity.DisplayName,
+				BasicTooltipText = _moduleSettings.Opacity.Description,
+			};
+
+			var opacitySlider = new TrackBar()
+			{
+				Location = new Point(topMiddleRight.X - SliderWidth, opacityLabel.Top + 2),
+				Width = SliderWidth,
+				MaxValue = 100,
+				MinValue = 0,
+				Value = _moduleSettings.Opacity.Value * 100,
+				Parent = parentPanel,
+			};
+
+			opacitySlider.ValueChanged += delegate
+			{
+				_moduleSettings.Opacity.Value =
+					opacitySlider.Value / 100;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Vertical Offset' setting controls");
+
+			#region Vertical Offset
+
+			var verticalOffsetLabel = new Label()
+			{
+				Location = new Point(_topLeft.X, opacityLabel.Bottom + 8),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.VerticalOffset.DisplayName,
+				BasicTooltipText = _moduleSettings.VerticalOffset.Description,
+			};
+
+			var verticalOffsetSlider = new TrackBar()
+			{
+				Location = new Point(topMiddleRight.X - SliderWidth, verticalOffsetLabel.Top + 2),
+				Width = SliderWidth,
+				MaxValue = 60,
+				MinValue = 0,
+				Value = _moduleSettings.VerticalOffset.Value * 10,
+				Parent = parentPanel,
+			};
+
+			verticalOffsetSlider.ValueChanged += delegate
+			{
+				_moduleSettings.VerticalOffset.Value = verticalOffsetSlider.Value / 10;
+			};
+
+			#endregion
+
 			Logger.Debug("Building 'Color' setting controls");
+
 			#region Color
+
+			var colorBox = new ColorBox()
+			{
+				Location = new Point(_topLeft.X, verticalOffsetLabel.Bottom + 8)
+				,
+				Parent = parentPanel,
+				Color = ConvertColor(_moduleSettings.Color.Value, ColorPresets.Colors[_moduleSettings.Color.Value]),
+				Height = 20,
+				Width = 20,
+			};
 
 			var colorLabel = new Label()
 			{
-				Location = new Point(enableCheckbox.Right + 10, _topLeft.Y),
+				Location = new Point(colorBox.Right + 2, colorBox.Top),
 				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
@@ -94,13 +249,7 @@ namespace Tortle.PlayerMarker.Views
 				BasicTooltipText = _moduleSettings.Color.Description,
 			};
 
-			var colorBox = new ColorBox()
-			{
-				Location = new Point(colorLabel.Right + 5, colorLabel.Top - 5),
-				Parent = parentPanel,
-				Color = ConvertColor(_moduleSettings.Color.Value,
-					ColorPresets.Colors[_moduleSettings.Color.Value]),
-			};
+
 
 			var colorPickerPanel = new Panel()
 			{
@@ -164,140 +313,21 @@ namespace Tortle.PlayerMarker.Views
 
 			#endregion
 
-			Logger.Debug("Building 'Image' setting controls");
-			#region Image
+			#region Duplicates
 
-			var imageDescription = new Label()
+			var cleanUpDuplicatesButton = new StandardButton()
 			{
 				Location = new Point(_topLeft.X, colorBox.Bottom + 8),
-				WrapText = true,
-				Width = parentPanel.Width / 2 - _topLeft.X * 2,
-				AutoSizeHeight = true,
+				Width = 200,
 				Parent = parentPanel,
-				Text = Localization.ModuleSettings.PlayerMarkerImage_Description,
+				Text = Localization.ModuleSettings.CleanupDuplicates_Name,
+				BasicTooltipText = string.Format(Localization.ModuleSettings.CleanupDuplicates_Tooltip, _markerTextureManager.GetDuplicateCount())
 			};
 
-			var imageLabel = new Label()
+			cleanUpDuplicatesButton.Click += delegate
 			{
-				Location = new Point(_topLeft.X, imageDescription.Bottom + 8),
-				AutoSizeWidth = true,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = _moduleSettings.ImageName.DisplayName,
-				BasicTooltipText = _moduleSettings.ImageName.Description,
-			};
-
-			var imageSelect = new Dropdown()
-			{
-				Location = new Point(imageLabel.Right + 5, imageLabel.Top),
-				Width = 250,
-				Parent = parentPanel,
-			};
-
-			foreach (var name in _textureCache.GetNames())
-			{
-				imageSelect.Items.Add(name);
-			}
-
-			imageSelect.SelectedItem = _moduleSettings.ImageName.Value;
-
-			imageSelect.ValueChanged += delegate
-			{
-				_moduleSettings.ImageName.Value = imageSelect.SelectedItem;
-			};
-
-			#endregion
-
-			Logger.Debug("Building 'Size' setting controls");
-			#region Size
-
-			var sizeLabel = new Label()
-			{
-				Location = new Point(_topLeft.X, imageLabel.Bottom + 8),
-				AutoSizeWidth = true,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = _moduleSettings.Size.DisplayName,
-				BasicTooltipText = _moduleSettings.Size.Description,
-			};
-
-			var sizeSlider = new TrackBar()
-			{
-				Location =
-					new Point(sizeLabel.Right + 5, sizeLabel.Top + 2),
-				Width = 250,
-				MaxValue = 40,
-				MinValue = 1,
-				Value = _moduleSettings.Size.Value * 40,
-				Parent = parentPanel,
-			};
-
-			sizeSlider.ValueChanged += delegate(object sender, ValueEventArgs<float> args)
-			{
-				_moduleSettings.Size.Value = args.Value / 40;
-			};
-
-			#endregion
-
-			Logger.Debug("Building 'Opacity' setting controls");
-			#region Opacity
-
-			var opacityLabel = new Label()
-			{
-				Location =
-					new Point(_topLeft.X, sizeLabel.Bottom + 8),
-				AutoSizeWidth = true,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = _moduleSettings.Opacity.DisplayName,
-				BasicTooltipText = _moduleSettings.Opacity.Description,
-			};
-
-			var opacitySlider = new TrackBar()
-			{
-				Location = new Point(opacityLabel.Right + 5,
-					opacityLabel.Top + 2),
-				Width = 250,
-				MaxValue = 100,
-				MinValue = 0,
-				Value = _moduleSettings.Opacity.Value * 100,
-				Parent = parentPanel,
-			};
-
-			opacitySlider.ValueChanged += delegate
-			{
-				_moduleSettings.Opacity.Value =
-					opacitySlider.Value / 100;
-			};
-
-			#endregion
-
-			Logger.Debug("Building 'Vertical Offset' setting controls");
-			#region Vertical Offset
-
-			var verticalOffsetLabel = new Label()
-			{
-				Location = new Point(_topLeft.X, opacityLabel.Bottom + 8),
-				AutoSizeWidth = true,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = _moduleSettings.VerticalOffset.DisplayName,
-				BasicTooltipText = _moduleSettings.VerticalOffset.Description,
-			};
-
-			var verticalOffsetSlider = new TrackBar()
-			{
-				Location = new Point(verticalOffsetLabel.Right + 5, verticalOffsetLabel.Top + 2),
-				Width = 250,
-				MaxValue = 60,
-				MinValue = 0,
-				Value = _moduleSettings.VerticalOffset.Value * 10,
-				Parent = parentPanel,
-			};
-
-			verticalOffsetSlider.ValueChanged += delegate
-			{
-				_moduleSettings.VerticalOffset.Value = verticalOffsetSlider.Value / 10;
+				_markerTextureManager.CleanupDuplicates();
+				cleanUpDuplicatesButton.BasicTooltipText = string.Format(Localization.ModuleSettings.CleanupDuplicates_Tooltip, _markerTextureManager.GetDuplicateCount());
 			};
 
 			#endregion
@@ -315,7 +345,8 @@ namespace Tortle.PlayerMarker.Views
 		{
 			return new Color()
 			{
-				Name = name, Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } },
+				Name = name,
+				Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } },
 			};
 		}
 

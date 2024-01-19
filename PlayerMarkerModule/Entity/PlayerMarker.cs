@@ -3,18 +3,32 @@ using Blish_HUD;
 using Blish_HUD.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tortle.PlayerMarker.Models;
 
 namespace Tortle.PlayerMarker.Entity
 {
 	/// <summary>
 	/// An entity that is rendered above the player's head.
 	/// </summary>
-	public class PlayerMarker : IEntity
+	internal class PlayerMarker : IEntity
 	{
+		private readonly VertexPositionColorTexture[] _vertex;
+
+		private ITexture _markerTexture;
+
 		/// <summary>
 		/// The <see cref="PlayerMarker"/>'s texture.
 		/// </summary>
-		public Texture2D MarkerTexture { get; set; }
+		public ITexture MarkerTexture
+		{
+			get => _markerTexture;
+			set
+			{
+				// Dispose the previous asset
+				_markerTexture?.Dispose();
+				_markerTexture = value;
+			}
+		}
 
 		/// <summary>
 		/// The <see cref="PlayerMarker"/>'s opacity.
@@ -50,8 +64,6 @@ namespace Tortle.PlayerMarker.Entity
 				return Vector3.DistanceSquared(position, GameService.Graphics.World.Camera.Position);
 			}
 		}
-
-		private readonly VertexPositionColorTexture[] _vertex;
 
 		public PlayerMarker()
 		{
@@ -112,7 +124,7 @@ namespace Tortle.PlayerMarker.Entity
 				View = GameService.Gw2Mumble.PlayerCamera.View,
 				Projection = GameService.Gw2Mumble.PlayerCamera.Projection,
 				World = worldMatrix,
-				Texture = MarkerTexture,
+				Texture = MarkerTexture.Get(),
 				Alpha = MarkerOpacity,
 			};
 

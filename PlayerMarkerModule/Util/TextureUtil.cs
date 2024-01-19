@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Blish_HUD;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,28 +14,30 @@ namespace Tortle.PlayerMarker.Util
 		/// Creates a Texture2D from a file path.
 		/// <returns>A <see cref="Texture2D"/>; if unsuccessful, an error texture is returned.</returns>
 		/// </summary>
-		public static Texture2D FromPathPremultiplied(string filePath)
+		public static async Task<Texture2D> FromPathPremultipliedAsync(string filePath)
 		{
-			Texture2D texture;
-			try
+			return await Task.Run(() =>
 			{
-				using var fs = File.OpenRead(filePath);
-				using var ctx = GameService.Graphics.LendGraphicsDeviceContext();
-				texture = Blish_HUD.TextureUtil.FromStreamPremultiplied(ctx.GraphicsDevice, fs);
-			}
-			catch (UnauthorizedAccessException e)
-			{
-				Logger.Error(e, "Unable to access {file}", filePath);
-				Blish_HUD.Debug.Contingency.NotifyFileSaveAccessDenied(filePath, "Unable to access file");
-				texture = ContentService.Textures.Error;
-			}
-			catch (Exception e)
-			{
-				Logger.Error(e, "Unable to create texture from {file}", filePath);
-				texture = ContentService.Textures.Error;
-			}
+				Texture2D texture;
+				try
+				{
+					using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+					texture = Blish_HUD.TextureUtil.FromStreamPremultiplied(fs);
+				}
+				catch (UnauthorizedAccessException e)
+				{
+					Logger.Error(e, "Unable to access {file}", filePath);
+					Blish_HUD.Debug.Contingency.NotifyFileSaveAccessDenied(filePath, "Unable to access file");
+					texture = ContentService.Textures.Error;
+				}
+				catch (Exception e)
+				{
+					Logger.Error(e, "Unable to create texture from {file}", filePath);
+					texture = ContentService.Textures.Error;
+				}
 
-			return texture;
+				return texture;
+			});
 		}
 	}
 }
