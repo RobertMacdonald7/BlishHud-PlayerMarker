@@ -15,6 +15,7 @@ namespace Tortle.PlayerMarker.Services
 	{
 		private static readonly Logger Logger = Logger.GetLogger(typeof(MarkerTextureManager));
 		private readonly Dictionary<string, ITexture> _textures;
+		private readonly List<string> _duplicateFilePaths;
 		private readonly string _imageDirectory;
 
 		public IEnumerable<ITexture> DefaultTextures { get; }
@@ -27,8 +28,8 @@ namespace Tortle.PlayerMarker.Services
 
 			DefaultTextures = new ITexture[]
 			{
-				new RefTexture(contentsManager, _imageDirectory, "gw2PersonalTarget.png"),
-				new RefTexture(contentsManager, _imageDirectory, "circleFill.png"),
+				new RefTexture(contentsManager, "gw2PersonalTarget.png"),
+				new RefTexture(contentsManager, "circleFill.png"),
 				new Gw2DatTexture(1335145, "gw2CommanderArrow.png"),
 				new Gw2DatTexture(1335146, "gw2CommanderCircle.png"),
 				new Gw2DatTexture(1335147, "gw2CommanderHeart.png"),
@@ -40,6 +41,7 @@ namespace Tortle.PlayerMarker.Services
 			};
 
 			_textures = DefaultTextures.ToDictionary(a => a.Id);
+			_duplicateFilePaths = new List<string>();
 		}
 
 		/// <summary>
@@ -99,6 +101,30 @@ namespace Tortle.PlayerMarker.Services
 			return _textures.Keys;
 		}
 
+		/// <summary>
+		/// Get the number of duplicates.
+		/// </summary>
+		public int GetDuplicateCount()
+		{
+			return _duplicateFilePaths.Count;
+		}
+
+		/// <summary>
+		/// Cleanup any duplicates.
+		/// </summary>
+		public void CleanupDuplicates()
+		{
+			Logger.Info("Cleaning up {numberOfDuplicates} duplicates", _duplicateFilePaths.Count);
+
+			for (var i = _duplicateFilePaths.Count - 1; i >= 0; i--)
+			{
+				if (TryDelete(_duplicateFilePaths[i]))
+				{
+					_duplicateFilePaths.RemoveAt(i);
+				}
+			}
+		}
+
 		public void Dispose()
 		{
 			Logger.Debug("Disposing {textureCount} entries", _textures.Count);
@@ -109,10 +135,6 @@ namespace Tortle.PlayerMarker.Services
 			}
 		}
 
-		/// <summary>
-		/// Loads all marker images in <paramref name="imageDirectory"/>.
-		/// </summary>
-		/// <param name="imageDirectory"></param>
 		private void LoadCustomMarkers(string imageDirectory)
 		{
 			try
@@ -124,11 +146,16 @@ namespace Tortle.PlayerMarker.Services
 						continue;
 					}
 
-					if (!AddFile(filePath))
+					var fileName = Path.GetFileName(filePath);
+					if (ContainsKey(fileName))
 					{
-						// TODO - Should we do this? Feels bad to delete files without confirmation from the user.
-						// TODO - If we don't do this, the worst case is the duplicate protection kicks in for existing users
-						TryDelete(filePath);
+						Logger.Info("Marking {filename} as a duplicate because it is already loaded as a Gw2DatTexture", fileName);
+						_duplicateFilePaths.Add(filePath);
+					}
+					else
+					{
+						Logger.Debug("Adding {filePath}", filePath);
+						_textures.Add(fileName, new CustomTexture(filePath, fileName));
 					}
 				}
 			}
@@ -143,35 +170,20 @@ namespace Tortle.PlayerMarker.Services
 			}
 		}
 
-		private void TryDelete(string filePath)
+		private bool TryDelete(string filePath)
 		{
 			try
 			{
-				Logger.Debug("Removing {filePath}", filePath);
+				Logger.Debug("Deleting {filePath}", filePath);
 				File.Delete(filePath);
+				return true;
 			}
 			catch (Exception e)
 			{
-				Logger.Warn(e, "Failed to remove duplicate file");
-			}
-		}
-
-		/// <summary>
-		/// Adds a <see cref="CustomTexture"/> for the given <paramref name="filePath"/>.
-		/// </summary>
-		/// <param name="filePath"></param>
-		private bool AddFile(string filePath)
-		{
-			var fileName = Path.GetFileName(filePath);
-			if (ContainsKey(fileName))
-			{
-				Logger.Info("{filename} already loaded", fileName);
+				Logger.Warn(e, "Failed to delete {filePath}", filePath);
 				return false;
 			}
-
-			Logger.Debug("Adding {filePath}", filePath);
-			_textures.Add(fileName, new CustomTexture(filePath, fileName));
-			return true;
 		}
+
 	}
 }

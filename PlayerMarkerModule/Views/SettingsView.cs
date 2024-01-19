@@ -18,6 +18,7 @@ namespace Tortle.PlayerMarker.Views
 	/// </summary>
 	internal class SettingsView : View, IDisposable
 	{
+		private const int SliderWidth = 175;
 		private static readonly Logger Logger = Logger.GetLogger(typeof(SettingsView));
 
 		private readonly MarkerTextureManager _markerTextureManager;
@@ -29,7 +30,7 @@ namespace Tortle.PlayerMarker.Views
 
 		#region UI margins
 
-		private readonly Point _topLeft = new Point(10, 18);
+		private readonly Point _topLeft = new Point(10, 10);
 
 		#endregion
 
@@ -53,13 +54,23 @@ namespace Tortle.PlayerMarker.Views
 				Width = buildPanel.Width,
 			};
 
+			var topMiddleRight = new Point(parentPanel.Width / 2 - 10, 10);
+
 			Logger.Debug("Building 'Enabled' setting controls");
 
 			#region Enabled
 
+			var enableCheckbox = new Checkbox()
+			{
+				Location = new Point(_topLeft.X, _topLeft.Y + 2),
+				Parent = parentPanel,
+				Checked = _moduleSettings.Enabled.Value,
+				Width = 10,
+			};
+
 			var enableLabel = new Label()
 			{
-				Location = _topLeft,
+				Location = new Point(enableCheckbox.Right + 2, _topLeft.Y),
 				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
@@ -67,101 +78,9 @@ namespace Tortle.PlayerMarker.Views
 				BasicTooltipText = _moduleSettings.Enabled.Description,
 			};
 
-			var enableCheckbox = new Checkbox()
-			{
-				Location = new Point(enableLabel.Right + 5, enableLabel.Top + 2),
-				Parent = parentPanel,
-				Checked = _moduleSettings.Enabled.Value,
-				Width = 10,
-			};
-
-			enableCheckbox.CheckedChanged += delegate(object sender, CheckChangedEvent e)
+			enableCheckbox.CheckedChanged += delegate (object sender, CheckChangedEvent e)
 			{
 				_moduleSettings.Enabled.Value = e.Checked;
-			};
-
-			#endregion
-
-			Logger.Debug("Building 'Color' setting controls");
-
-			#region Color
-
-			var colorLabel = new Label()
-			{
-				Location = new Point(enableCheckbox.Right + 10, _topLeft.Y),
-				AutoSizeWidth = true,
-				WrapText = false,
-				Parent = parentPanel,
-				Text = _moduleSettings.Color.DisplayName,
-				BasicTooltipText = _moduleSettings.Color.Description,
-			};
-
-			var colorBox = new ColorBox()
-			{
-				Location = new Point(colorLabel.Right + 5, colorLabel.Top - 5),
-				Parent = parentPanel,
-				Color = ConvertColor(_moduleSettings.Color.Value,
-					ColorPresets.Colors[_moduleSettings.Color.Value]),
-			};
-
-			var colorPickerPanel = new Panel()
-			{
-				Location = new Point(colorBox.Right + 5, 0),
-				Size = new Point(400, 235),
-				Visible = false,
-				ZIndex = 10,
-				Parent = parentPanel,
-				BackgroundTexture = _panelBackgroundTexture,
-				ShowBorder = false,
-			};
-
-			var colorPickerBg = new Panel()
-			{
-				Location = new Point(15, 15),
-				Size = new Point(colorPickerPanel.Size.X - 35, colorPickerPanel.Size.Y - 35),
-				Parent = colorPickerPanel,
-				BackgroundTexture = _buttonDarkTexture,
-				ShowBorder = true,
-			};
-
-			var colorPicker = new ColorPicker()
-			{
-				Size = colorPickerBg.Size,
-				CanScroll = false,
-				Parent = colorPickerBg,
-				ShowTint = false,
-				Visible = true,
-			};
-
-			colorPicker.SelectedColorChanged += delegate(object sender, EventArgs args)
-			{
-				colorPicker.AssociatedColorBox.Color = colorPicker.SelectedColor;
-				_moduleSettings.Color.Value = colorPicker.SelectedColor.Name;
-			};
-
-			colorPicker.Click += delegate
-			{
-				colorPickerPanel.Visible = false;
-			};
-
-			foreach (var color in ColorPresets.Colors)
-			{
-				colorPicker.Colors.Add(ConvertColor(color.Key, color.Value));
-			}
-
-			colorBox.Click += delegate(object sender, MouseEventArgs e)
-			{
-				colorPicker.AssociatedColorBox = (ColorBox)sender;
-				colorPickerPanel.Visible = !colorPickerPanel.Visible;
-			};
-
-			parentPanel.LeftMouseButtonPressed += delegate
-			{
-				if (colorPickerPanel.Visible && !colorPickerPanel.MouseOver &&
-				    !colorBox.MouseOver)
-				{
-					colorPickerPanel.Visible = false;
-				}
 			};
 
 			#endregion
@@ -172,7 +91,7 @@ namespace Tortle.PlayerMarker.Views
 
 			var imageDescription = new Label()
 			{
-				Location = new Point(_topLeft.X, colorBox.Bottom + 8),
+				Location = new Point(_topLeft.X, enableCheckbox.Bottom + 8),
 				WrapText = true,
 				Width = parentPanel.Width / 2 - _topLeft.X * 2,
 				AutoSizeHeight = true,
@@ -192,7 +111,9 @@ namespace Tortle.PlayerMarker.Views
 
 			var imageSelect = new Dropdown()
 			{
-				Location = new Point(imageLabel.Right + 5, imageLabel.Top), Width = 250, Parent = parentPanel,
+				Location = new Point(topMiddleRight.X - SliderWidth, imageLabel.Top),
+				Width = SliderWidth,
+				Parent = parentPanel,
 			};
 
 			foreach (var name in _markerTextureManager.GetNames())
@@ -225,16 +146,15 @@ namespace Tortle.PlayerMarker.Views
 
 			var sizeSlider = new TrackBar()
 			{
-				Location =
-					new Point(sizeLabel.Right + 5, sizeLabel.Top + 2),
-				Width = 250,
+				Location = new Point(topMiddleRight.X - SliderWidth, sizeLabel.Top + 2),
+				Width = SliderWidth,
 				MaxValue = 40,
 				MinValue = 1,
 				Value = _moduleSettings.Size.Value * 40,
 				Parent = parentPanel,
 			};
 
-			sizeSlider.ValueChanged += delegate(object sender, ValueEventArgs<float> args)
+			sizeSlider.ValueChanged += delegate (object sender, ValueEventArgs<float> args)
 			{
 				_moduleSettings.Size.Value = args.Value / 40;
 			};
@@ -258,9 +178,8 @@ namespace Tortle.PlayerMarker.Views
 
 			var opacitySlider = new TrackBar()
 			{
-				Location = new Point(opacityLabel.Right + 5,
-					opacityLabel.Top + 2),
-				Width = 250,
+				Location = new Point(topMiddleRight.X - SliderWidth, opacityLabel.Top + 2),
+				Width = SliderWidth,
 				MaxValue = 100,
 				MinValue = 0,
 				Value = _moduleSettings.Opacity.Value * 100,
@@ -291,8 +210,8 @@ namespace Tortle.PlayerMarker.Views
 
 			var verticalOffsetSlider = new TrackBar()
 			{
-				Location = new Point(verticalOffsetLabel.Right + 5, verticalOffsetLabel.Top + 2),
-				Width = 250,
+				Location = new Point(topMiddleRight.X - SliderWidth, verticalOffsetLabel.Top + 2),
+				Width = SliderWidth,
 				MaxValue = 60,
 				MinValue = 0,
 				Value = _moduleSettings.VerticalOffset.Value * 10,
@@ -302,6 +221,113 @@ namespace Tortle.PlayerMarker.Views
 			verticalOffsetSlider.ValueChanged += delegate
 			{
 				_moduleSettings.VerticalOffset.Value = verticalOffsetSlider.Value / 10;
+			};
+
+			#endregion
+
+			Logger.Debug("Building 'Color' setting controls");
+
+			#region Color
+
+			var colorBox = new ColorBox()
+			{
+				Location = new Point(_topLeft.X, verticalOffsetLabel.Bottom + 8)
+				,
+				Parent = parentPanel,
+				Color = ConvertColor(_moduleSettings.Color.Value, ColorPresets.Colors[_moduleSettings.Color.Value]),
+				Height = 20,
+				Width = 20,
+			};
+
+			var colorLabel = new Label()
+			{
+				Location = new Point(colorBox.Right + 2, colorBox.Top),
+				AutoSizeWidth = true,
+				WrapText = false,
+				Parent = parentPanel,
+				Text = _moduleSettings.Color.DisplayName,
+				BasicTooltipText = _moduleSettings.Color.Description,
+			};
+
+
+
+			var colorPickerPanel = new Panel()
+			{
+				Location = new Point(colorBox.Right + 5, 0),
+				Size = new Point(400, 235),
+				Visible = false,
+				ZIndex = 10,
+				Parent = parentPanel,
+				BackgroundTexture = _panelBackgroundTexture,
+				ShowBorder = false,
+			};
+
+			var colorPickerBg = new Panel()
+			{
+				Location = new Point(15, 15),
+				Size = new Point(colorPickerPanel.Size.X - 35, colorPickerPanel.Size.Y - 35),
+				Parent = colorPickerPanel,
+				BackgroundTexture = _buttonDarkTexture,
+				ShowBorder = true,
+			};
+
+			var colorPicker = new ColorPicker()
+			{
+				Size = colorPickerBg.Size,
+				CanScroll = false,
+				Parent = colorPickerBg,
+				ShowTint = false,
+				Visible = true,
+			};
+
+			colorPicker.SelectedColorChanged += delegate (object sender, EventArgs args)
+			{
+				colorPicker.AssociatedColorBox.Color = colorPicker.SelectedColor;
+				_moduleSettings.Color.Value = colorPicker.SelectedColor.Name;
+			};
+
+			colorPicker.Click += delegate
+			{
+				colorPickerPanel.Visible = false;
+			};
+
+			foreach (var color in ColorPresets.Colors)
+			{
+				colorPicker.Colors.Add(ConvertColor(color.Key, color.Value));
+			}
+
+			colorBox.Click += delegate (object sender, MouseEventArgs e)
+			{
+				colorPicker.AssociatedColorBox = (ColorBox)sender;
+				colorPickerPanel.Visible = !colorPickerPanel.Visible;
+			};
+
+			parentPanel.LeftMouseButtonPressed += delegate
+			{
+				if (colorPickerPanel.Visible && !colorPickerPanel.MouseOver &&
+					!colorBox.MouseOver)
+				{
+					colorPickerPanel.Visible = false;
+				}
+			};
+
+			#endregion
+
+			#region Duplicates
+
+			var cleanUpDuplicatesButton = new StandardButton()
+			{
+				Location = new Point(_topLeft.X, colorBox.Bottom + 8),
+				Width = 200,
+				Parent = parentPanel,
+				Text = Localization.ModuleSettings.CleanupDuplicates_Name,
+				BasicTooltipText = string.Format(Localization.ModuleSettings.CleanupDuplicates_Tooltip, _markerTextureManager.GetDuplicateCount())
+			};
+
+			cleanUpDuplicatesButton.Click += delegate
+			{
+				_markerTextureManager.CleanupDuplicates();
+				cleanUpDuplicatesButton.BasicTooltipText = string.Format(Localization.ModuleSettings.CleanupDuplicates_Tooltip, _markerTextureManager.GetDuplicateCount());
 			};
 
 			#endregion
@@ -319,7 +345,8 @@ namespace Tortle.PlayerMarker.Views
 		{
 			return new Color()
 			{
-				Name = name, Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } },
+				Name = name,
+				Cloth = new ColorMaterial() { Rgb = new int[] { color.R, color.G, color.B } },
 			};
 		}
 

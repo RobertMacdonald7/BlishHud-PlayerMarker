@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Blish_HUD;
+﻿using Blish_HUD;
 using Blish_HUD.Content;
 
 namespace Tortle.PlayerMarker.Models
@@ -36,12 +35,18 @@ namespace Tortle.PlayerMarker.Models
 
 				_texture.SwapTexture(loadedTexture);
 			});
+
 			return _texture;
 		}
 
 		public void Dispose()
 		{
-			_texture?.Dispose();
+			// Don't dispose BlishHUD's error texture!
+			if (_texture?.Texture != ContentService.Textures.Error)
+			{
+				_texture?.Dispose();
+			}
+
 			_texture = null;
 		}
 	}

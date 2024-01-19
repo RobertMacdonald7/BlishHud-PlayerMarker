@@ -1,22 +1,18 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Blish_HUD;
 using Blish_HUD.Content;
 using Blish_HUD.Modules.Managers;
-using Tortle.PlayerMarker.Services;
 
 namespace Tortle.PlayerMarker.Models
 {
 	internal class RefTexture : ITexture
 	{
-		private static readonly Logger Logger = Logger.GetLogger(typeof(MarkerTextureManager));
-
 		private readonly ContentsManager _contentsManager;
 		private AsyncTexture2D _texture;
 
 		public string Id { get; }
 
-		public RefTexture(ContentsManager contentsManager, string directory, string fileName)
+		public RefTexture(ContentsManager contentsManager, string fileName)
 		{
 			_contentsManager = contentsManager;
 			Id = fileName;
@@ -26,7 +22,6 @@ namespace Tortle.PlayerMarker.Models
 		{
 			if (_texture != null)
 			{
-				Logger.Debug("{filename} returning cached texture", Id);
 				return _texture;
 			}
 
@@ -42,14 +37,19 @@ namespace Tortle.PlayerMarker.Models
 				}
 
 				_texture.SwapTexture(loadedTexture);
-				Logger.Debug("{filename} texture loaded", Id);
 			});
+
 			return _texture;
 		}
 
 		public void Dispose()
 		{
-			_texture?.Dispose();
+			// Don't dispose BlishHUD's error texture!
+			if (_texture?.Texture != ContentService.Textures.Error)
+			{
+				_texture?.Dispose();
+			}
+
 			_texture = null;
 		}
 	}
