@@ -9,7 +9,7 @@ using Tortle.PlayerMarker.Models;
 namespace Tortle.PlayerMarker.Services
 {
 	/// <summary>
-	/// A cache for textures.
+	/// Manages player marker textures.
 	/// </summary>
 	internal class MarkerTextureManager : IDisposable
 	{
