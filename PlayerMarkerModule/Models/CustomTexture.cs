@@ -3,12 +3,9 @@ using Blish_HUD.Content;
 
 namespace Tortle.PlayerMarker.Models
 {
-	internal class CustomTexture : ITexture
+	internal class CustomTexture : ModuleManagedTextureBase, ITexture
 	{
 		private readonly string _filePath;
-		private AsyncTexture2D _texture;
-
-		public string Id { get; }
 
 		public CustomTexture(string filePath, string fileName)
 		{
@@ -37,17 +34,6 @@ namespace Tortle.PlayerMarker.Models
 			});
 
 			return _texture;
-		}
-
-		public void Dispose()
-		{
-			// Don't dispose BlishHUD's error texture!
-			if (_texture?.Texture != ContentService.Textures.Error)
-			{
-				_texture?.Dispose();
-			}
-
-			_texture = null;
 		}
 	}
 }
