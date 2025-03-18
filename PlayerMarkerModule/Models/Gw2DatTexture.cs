@@ -1,4 +1,5 @@
-﻿using Blish_HUD.Content;
+﻿using System;
+using Blish_HUD.Content;
 
 namespace Tortle.PlayerMarker.Models
 {
@@ -27,6 +28,14 @@ namespace Tortle.PlayerMarker.Models
 
 		public void Dispose()
 		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
 			// Blish handles disposal of these.
 			_texture = null;
 		}

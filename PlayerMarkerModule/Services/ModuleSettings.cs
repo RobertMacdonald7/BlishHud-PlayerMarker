@@ -68,6 +68,14 @@ namespace Tortle.PlayerMarker.Services
 
 		public void Dispose()
 		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
 			Logger.Debug("Disposing");
 			Enabled.SettingChanged -= UpdateSettings_Enabled;
 			Size.SettingChanged -= UpdateSettings_Size;

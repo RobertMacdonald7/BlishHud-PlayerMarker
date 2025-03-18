@@ -249,8 +249,6 @@ namespace Tortle.PlayerMarker.Views
 				BasicTooltipText = _moduleSettings.Color.Description,
 			};
 
-
-
 			var colorPickerPanel = new Panel()
 			{
 				Location = new Point(colorBox.Right + 5, 0),
@@ -362,6 +360,14 @@ namespace Tortle.PlayerMarker.Views
 
 		public void Dispose()
 		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
 			Logger.Debug("Disposing");
 			_panelBackgroundTexture?.Dispose();
 			_buttonDarkTexture?.Dispose();

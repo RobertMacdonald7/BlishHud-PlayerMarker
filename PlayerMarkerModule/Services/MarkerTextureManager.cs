@@ -127,6 +127,14 @@ namespace Tortle.PlayerMarker.Services
 
 		public void Dispose()
 		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
 			Logger.Debug("Disposing {textureCount} entries", _textures.Count);
 
 			foreach (var item in _textures)
@@ -170,7 +178,7 @@ namespace Tortle.PlayerMarker.Services
 			}
 		}
 
-		private bool TryDelete(string filePath)
+		private static bool TryDelete(string filePath)
 		{
 			try
 			{
