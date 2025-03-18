@@ -27,6 +27,7 @@ namespace Tortle.PlayerMarker.Views
 
 		private Texture2D _panelBackgroundTexture;
 		private Texture2D _buttonDarkTexture;
+		private Checkbox _enableCheckbox;
 
 		#region UI margins
 
@@ -40,6 +41,26 @@ namespace Tortle.PlayerMarker.Views
 			_markerTextureManager = markerTextureManager;
 			_moduleSettings = moduleSettings;
 			_contentsManager = contentsManager;
+		}
+
+		/// <summary>
+		/// Loads all required textures.
+		/// </summary>
+		public void Initialize()
+		{
+			Logger.Info("Loading textures");
+			_panelBackgroundTexture = _contentsManager.GetTexture("panelBackground.png");
+			_buttonDarkTexture = _contentsManager.GetTexture("buttonDark.png");
+
+			_moduleSettings.Enabled.SettingChanged += Enabled_SettingChanged;
+		}
+
+		public void Dispose()
+		{
+			Logger.Debug("Disposing");
+			_panelBackgroundTexture?.Dispose();
+			_buttonDarkTexture?.Dispose();
+			_moduleSettings.Enabled.SettingChanged -= Enabled_SettingChanged;
 		}
 
 		protected override void Build(Container buildPanel)
@@ -60,7 +81,7 @@ namespace Tortle.PlayerMarker.Views
 
 			#region Enabled
 
-			var enableCheckbox = new Checkbox()
+			_enableCheckbox = new Checkbox()
 			{
 				Location = new Point(_topLeft.X, _topLeft.Y + 2),
 				Parent = parentPanel,
@@ -70,7 +91,7 @@ namespace Tortle.PlayerMarker.Views
 
 			var enableLabel = new Label()
 			{
-				Location = new Point(enableCheckbox.Right + 2, _topLeft.Y),
+				Location = new Point(_enableCheckbox.Right + 2, _topLeft.Y),
 				AutoSizeWidth = true,
 				WrapText = false,
 				Parent = parentPanel,
@@ -78,10 +99,7 @@ namespace Tortle.PlayerMarker.Views
 				BasicTooltipText = _moduleSettings.Enabled.Description,
 			};
 
-			enableCheckbox.CheckedChanged += delegate (object sender, CheckChangedEvent e)
-			{
-				_moduleSettings.Enabled.Value = e.Checked;
-			};
+			_enableCheckbox.CheckedChanged += EnableCheckbox_CheckedChanged;
 
 			#endregion
 
@@ -91,7 +109,7 @@ namespace Tortle.PlayerMarker.Views
 
 			var imageDescription = new Label()
 			{
-				Location = new Point(_topLeft.X, enableCheckbox.Bottom + 8),
+				Location = new Point(_topLeft.X, _enableCheckbox.Bottom + 8),
 				WrapText = true,
 				Width = parentPanel.Width / 2 - _topLeft.X * 2,
 				AutoSizeHeight = true,
@@ -348,21 +366,17 @@ namespace Tortle.PlayerMarker.Views
 			};
 		}
 
-		/// <summary>
-		/// Loads all required textures.
-		/// </summary>
-		public void LoadTextures()
+		private void EnableCheckbox_CheckedChanged(object sender, CheckChangedEvent e)
 		{
-			Logger.Info("Loading textures");
-			_panelBackgroundTexture = _contentsManager.GetTexture("panelBackground.png");
-			_buttonDarkTexture = _contentsManager.GetTexture("buttonDark.png");
+			_moduleSettings.Enabled.Value = e.Checked;
 		}
 
-		public void Dispose()
+		private void Enabled_SettingChanged(object sender, ValueChangedEventArgs<bool> e)
 		{
-			Logger.Debug("Disposing");
-			_panelBackgroundTexture?.Dispose();
-			_buttonDarkTexture?.Dispose();
+			// Prevent an infinite loop by removing the handler before setting.
+			_enableCheckbox.CheckedChanged -= EnableCheckbox_CheckedChanged;
+			_enableCheckbox.Checked = e.NewValue;
+			_enableCheckbox.CheckedChanged += EnableCheckbox_CheckedChanged;
 		}
 	}
 }

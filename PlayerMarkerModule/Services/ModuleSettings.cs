@@ -64,6 +64,7 @@ namespace Tortle.PlayerMarker.Services
 			Opacity.SettingChanged += UpdateSettings_Opacity;
 			VerticalOffset.SettingChanged += UpdateSettings_VerticalOffset;
 			ImageName.SettingChanged += UpdateSettings_Image;
+			_playerMarker.OnError += PlayerMarker_OnError;
 		}
 
 		public void Dispose()
@@ -75,6 +76,7 @@ namespace Tortle.PlayerMarker.Services
 			Opacity.SettingChanged -= UpdateSettings_Opacity;
 			VerticalOffset.SettingChanged -= UpdateSettings_VerticalOffset;
 			ImageName.SettingChanged -= UpdateSettings_Image;
+			_playerMarker.OnError -= PlayerMarker_OnError;
 		}
 
 		private void UpdateSettings_Enabled(object sender, ValueChangedEventArgs<bool> e)
@@ -107,6 +109,12 @@ namespace Tortle.PlayerMarker.Services
 		private void UpdateSettings_Image(object sender, ValueChangedEventArgs<string> e)
 		{
 			_playerMarker.MarkerTexture = _markerTextureManager.Get(e.NewValue);
+		}
+
+		private void PlayerMarker_OnError(object sender, Exception ex)
+		{
+			Logger.Warn("Disabling marker because entity threw an exception", ex);
+			Enabled.Value = false;
 		}
 	}
 }

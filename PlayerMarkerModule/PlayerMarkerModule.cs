@@ -60,7 +60,7 @@ namespace Tortle.PlayerMarker
 
 			NormalizeSettings();
 
-			_settingsView.LoadTextures();
+			_settingsView.Initialize();
 
 			GameService.Graphics.World.AddEntity(_playerMarker);
 			return Task.CompletedTask;
