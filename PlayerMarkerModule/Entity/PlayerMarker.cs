@@ -117,6 +117,8 @@ namespace Tortle.PlayerMarker.Entity
 				return;
 			}
 
+			try
+			{
 			var x = GameService.Gw2Mumble.PlayerCharacter.Position.X;
 			var y = GameService.Gw2Mumble.PlayerCharacter.Position.Y;
 			var z = GameService.Gw2Mumble.PlayerCharacter.Position.Z + VerticalOffset;
@@ -164,10 +166,17 @@ namespace Tortle.PlayerMarker.Entity
 				0,
 				2);
 		}
+			catch (Exception ex)
+			{
+				OnError?.Invoke(this, ex);
+			}
+		}
 
 		public void Update(GameTime gameTime)
 		{
 			/* NOOP */
 		}
+
+		public event EventHandler<Exception> OnError;
 	}
 }
