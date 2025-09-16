@@ -11,7 +11,7 @@ namespace Tortle.PlayerMarker.Services
 	/// <summary>
 	/// Manages player marker textures.
 	/// </summary>
-	internal class MarkerTextureManager : IDisposable
+	internal sealed class MarkerTextureManager : IDisposable
 	{
 		private static readonly Logger Logger = Logger.GetLogger(typeof(MarkerTextureManager));
 		private readonly Dictionary<string, ITexture> _textures;
@@ -127,14 +127,6 @@ namespace Tortle.PlayerMarker.Services
 
 		public void Dispose()
 		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-
 			Logger.Debug("Disposing {textureCount} entries", _textures.Count);
 
 			foreach (var item in _textures)

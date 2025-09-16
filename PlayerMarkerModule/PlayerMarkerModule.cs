@@ -90,6 +90,7 @@ namespace Tortle.PlayerMarker
 			_settingsView.Dispose();
 
 			GameService.Graphics.World.RemoveEntity(_playerMarker);
+			_playerMarker.Dispose();
 		}
 
 		private void NormalizeSettings()

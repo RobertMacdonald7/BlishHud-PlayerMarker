@@ -16,7 +16,7 @@ namespace Tortle.PlayerMarker.Views
 	/// <summary>
 	/// A custom view containing all configurable module settings.
 	/// </summary>
-	internal class SettingsView : View, IDisposable
+	internal sealed class SettingsView : View, IDisposable
 	{
 		private const int SliderWidth = 175;
 		private static readonly Logger Logger = Logger.GetLogger(typeof(SettingsView));
@@ -360,14 +360,6 @@ namespace Tortle.PlayerMarker.Views
 
 		public void Dispose()
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-
 			Logger.Debug("Disposing");
 			_panelBackgroundTexture?.Dispose();
 			_buttonDarkTexture?.Dispose();

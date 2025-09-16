@@ -10,11 +10,15 @@ namespace Tortle.PlayerMarker.Entity
 	/// <summary>
 	/// An entity that is rendered above the player's head.
 	/// </summary>
-	internal class PlayerMarker : IEntity
+	internal sealed class PlayerMarker : IEntity, IDisposable
 	{
+		private static readonly Logger Logger = Logger.GetLogger(typeof(PlayerMarker));
+
 		private readonly VertexPositionColorTexture[] _vertex;
 
 		private ITexture _markerTexture;
+		private BasicEffect _effect;
+		private VertexBuffer _buffer;
 
 		/// <summary>
 		/// The <see cref="PlayerMarker"/>'s texture.
@@ -76,6 +80,17 @@ namespace Tortle.PlayerMarker.Entity
 			_vertex = new VertexPositionColorTexture[4];
 		}
 
+		public void Dispose()
+		{
+			Logger.Debug("Disposing");
+			_buffer?.Dispose();
+			_buffer = null;
+			_effect?.Dispose();
+			_effect = null;
+			_markerTexture?.Dispose();
+			_markerTexture = null;
+		}
+
 		/// <summary>
 		/// Updates the marker's Size and Color.
 		/// </summary>
@@ -117,24 +132,29 @@ namespace Tortle.PlayerMarker.Entity
 			var rotationMatrix = Matrix.Multiply(rotationMatrixX, rotationMatrixZ);
 			var worldMatrix = Matrix.Multiply(rotationMatrix, translationMatrix);
 
-			var renderEffect = new BasicEffect(graphicsDevice)
+
+			_effect ??= new BasicEffect(graphicsDevice)
 			{
 				VertexColorEnabled = true,
 				TextureEnabled = true,
-				View = GameService.Gw2Mumble.PlayerCamera.View,
-				Projection = GameService.Gw2Mumble.PlayerCamera.Projection,
-				World = worldMatrix,
-				Texture = MarkerTexture.Get(),
-				Alpha = MarkerOpacity,
 			};
 
-			var geometryBuffer = new VertexBuffer(graphicsDevice, VertexPositionColorTexture.VertexDeclaration, 4,
+			_effect.View = GameService.Gw2Mumble.PlayerCamera.View;
+			_effect.Projection = GameService.Gw2Mumble.PlayerCamera.Projection;
+			_effect.World = worldMatrix;
+			_effect.Alpha = MarkerOpacity;
+
+			// Need to get this texture every time because of the texture swapping underneath when loading.
+			_effect.Texture = MarkerTexture.Get();
+
+
+			_buffer ??= new VertexBuffer(graphicsDevice, VertexPositionColorTexture.VertexDeclaration, 4,
 				BufferUsage.WriteOnly);
-			geometryBuffer.SetData(_vertex);
+			_buffer.SetData(_vertex);
 
-			graphicsDevice.SetVertexBuffer(geometryBuffer, 0);
+			graphicsDevice.SetVertexBuffer(_buffer, 0);
 
-			foreach (var pass in renderEffect.CurrentTechnique.Passes)
+			foreach (var pass in _effect.CurrentTechnique.Passes)
 			{
 				pass.Apply();
 			}
