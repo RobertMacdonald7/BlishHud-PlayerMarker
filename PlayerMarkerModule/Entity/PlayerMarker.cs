@@ -143,6 +143,8 @@ namespace Tortle.PlayerMarker.Entity
 			_effect.Projection = GameService.Gw2Mumble.PlayerCamera.Projection;
 			_effect.World = worldMatrix;
 			_effect.Alpha = MarkerOpacity;
+
+			// Need to get this texture every time because of the texture swapping underneath when loading.
 			_effect.Texture = MarkerTexture.Get();
 
 
