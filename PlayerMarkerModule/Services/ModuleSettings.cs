@@ -11,7 +11,7 @@ namespace Tortle.PlayerMarker.Services
 	/// <summary>
 	/// Setting definitions and event handlers.
 	/// </summary>
-	internal class ModuleSettings : IDisposable
+	internal sealed class ModuleSettings : IDisposable
 	{
 		private static readonly Logger Logger = Logger.GetLogger(typeof(ModuleSettings));
 
@@ -68,14 +68,6 @@ namespace Tortle.PlayerMarker.Services
 
 		public void Dispose()
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
-
 			Logger.Debug("Disposing");
 			Enabled.SettingChanged -= UpdateSettings_Enabled;
 			Size.SettingChanged -= UpdateSettings_Size;
